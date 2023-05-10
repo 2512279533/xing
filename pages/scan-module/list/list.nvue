@@ -1,0 +1,366 @@
+<template>
+	<view class="main-wrap">
+		<!-- 小计信息展示 -->
+		<view class="page-info-block">
+			<text class="page-info-text">小计：{{listLength}}</text>
+		</view>
+
+
+
+		<!-- 分页模块 -->
+		<z-list ref="list" class="list-block" :list="list" :init="false" is-scan>
+			<!-- 分页列表模块 -->
+			<template v-if="list && list.length > 0">
+				<cell v-for="(item, index) in list" :key="index">
+					<view class="list-box" @click="viewDetail(item)">
+						<view class="list-head-block">
+							<text class="shop-name">检具编号：{{item.assetsCode}}</text>
+
+						</view>
+
+						<view class="list-info-block">
+							<view class="list-info-wrap">
+								<view class="info-row">
+									<text class="info-label ">检具名称</text>
+									<text class="shop-name ">{{item.assetsName}}</text>
+								</view>
+								<view class="info-row">
+									<text class="info-label">检具状态</text>
+								
+									<text class="shop-name" v-if="item.status==0">在库</text>
+									<text class="shop-name" v-if="item.status==2">使用中</text>
+									<text class="shop-name" v-if="item.status==1">在途</text>
+								</view>
+							</view>
+
+
+							<image class="right-icon" src="/static/images/arrow-right-black.png" mode="widthFix" />
+
+						</view>
+
+					</view>
+				</cell>
+			</template>
+		</z-list>
+
+	</view>
+</template>
+
+<script>
+	import url from "../../../common/config.js"
+	const test_module = uni.requireNativePlugin("sz360c_honewell")
+	import ZList from '@/components/z-list/z-list.nvue'
+	export default {
+		components: {
+			ZList,
+			url
+		},
+		data() {
+			return {
+				alreadySet: new Set(), // 已扫描集合
+
+				list: [
+					
+					// {
+					// 	Gauge_Code: "S474741",
+					// 	Gauge_Name: "深度规",
+					// 	Gauge_State: "使用中",
+					// 	Asset_Name: "深度规",
+					// 	Goods_type: "检具",
+					// 	Due_Date: "2023-8-2",
+					// 	FRID_Table: "SD5455214",
+					// 	Device_Number: "S4",
+					// 	Person_Number: "48551"
+
+					// },
+
+				],
+
+			};
+		},
+		computed: {
+			/**
+			 * 列表长度
+			 */
+			listLength() {
+				if (this.list.length > 0) {
+					return this.list.length
+				} else {
+					return 0
+				}
+			}
+		},
+		onShow() {
+			this.isHaveNetwork()
+			this.initScan()
+			getApp().globalData.test_module.InitRFID()
+			},
+		
+		onPullDownRefresh() {
+			
+			this.list=[]
+			this.alreadySet.clear()
+			this.isHaveNetwork()
+			//调用接口完成后添加下方函数,停止当前页面下拉刷新。
+			uni.stopPullDownRefresh()
+			if(this.net=="none"){
+				uni.$u.toast('刷新失败，请检查网络');
+			}else{
+				uni.$u.toast('刷新成功');
+			}
+
+		},
+
+
+	
+		onLoad() {
+			
+			
+			// #ifdef APP-PLUS
+			// 初始化扫描
+
+			
+			// #endif
+		},
+		methods: {
+			
+			isHaveNetwork() {
+				uni.getNetworkType({
+					success: (res) => {
+						if (res.networkType == 'none') {
+							uni.showToast({
+								title: '网络异常',
+								icon: "error"
+							});
+							this.net = "none"
+						} else {
+							this.net = "b"
+							console.log("有网") //有网
+						}
+					}
+				});
+			},
+			
+			
+			/**
+			 * 初始化扫描
+			 */
+			initScan() {
+							// 获取功率设置
+							
+							// 设置保存的功率，默认30
+						
+							
+							uni.$on('rfid', epc => {
+								
+								console.log('获取到rfid', epc)
+								this.findEpc(epc.epcHexStr, 'epc')
+							})
+							
+							uni.$on('onTriggerLong', () => {
+								console.log('扳机长按开始')
+								
+								
+							})
+							uni.$on('endTriggerLong', () => {
+								console.log('扳机长按结束')
+								
+							})
+							
+						},
+
+			/**
+			 * 查找EPC
+			 */
+			findEpc(str, type) {
+				var that = this 
+				
+					// 如果这个epc没有扫到过
+						if (!this.alreadySet.has(str)) {
+										// 在已扫描数据内添加该epc
+										this.alreadySet.add(str)	
+			
+			
+			uni.request({
+				url:url.BASE_URL+"/api/ESC/App_AssetsQuery_Eam",
+				data:{
+					"epc":  str
+				},
+				method:"POST"
+			}).then(res =>{
+				console.log("fanhuizhi",res,str)
+				if(res[1].data.data!=null || res[1].data.data.length!=0){
+					
+					console.log("77777777")
+					
+					this.list.push(res[1].data.data)
+					
+					
+				}
+			                	
+						}).catch(e => {
+							console.log("888888")
+							this.alreadySet.delete(str)
+						})
+					}
+				},
+			
+			/**
+			 * 查看详情
+			 */
+			flush(){
+				this.list=[]
+				this.disabled=true
+				uni.showModal({
+					title: '提示',
+					content: '刷新成功',
+				});
+			}
+			,
+			viewDetail(item) {
+				uni.$u.throttle(() => {
+					uni.$u.route({
+						url: '/pages/scan-module/detail/detail',
+						params: item
+					})
+				}, 500)
+			},
+
+		},
+
+	}
+</script>
+
+<style scoped lang="scss">
+	.main-wrap {
+		flex: 1;
+	}
+
+	.search-block {
+		height: 130rpx;
+		background-color: #11479b;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+	}
+
+	.page-info-block {
+		padding: 0 36rpx;
+		height: 74rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.page-info-text {
+		font-size: 28rpx;
+		color: #222222;
+	}
+
+	.list-block {
+		flex: 1;
+	}
+
+	.list-box {
+		background-color: #ffffff;
+		border-radius: 8rpx;
+		display: flex;
+		flex-direction: column;
+		padding: 0 20rpx;
+		margin: 0 30rpx 20rpx;
+	}
+
+	.list-box:active {
+		opacity: 0.7;
+	}
+
+	.list-head-block {
+		height: 78rpx;
+		border-bottom: 1px solid #ebedf0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.shop-name {
+		font-size: 34rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.list-status {
+		font-size: 30rpx;
+		color: #00a34f;
+	}
+
+	.status-0 {
+		color: #ee0a24;
+	}
+
+	.status-1 {
+		color: #faab0c;
+	}
+
+	.status-2 {
+		color: #323233;
+	}
+
+	.list-info-block {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 24rpx 10rpx 0 0;
+	}
+
+	.list-info-wrap {
+		flex: 1;
+	}
+
+	.right-icon {
+		width: 16rpx;
+		height: 28rpx;
+	}
+
+	.info-row {
+		margin-bottom: 24rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.info-label {
+		width: 190rpx;
+		font-size: 30rpx;
+		color: #969799;
+	}
+
+	.info-value {
+		font-size: 30rpx;
+		color: #323233;
+	}
+
+	.bottom-btn-block {
+		padding: 20rpx 30rpx;
+		background-color: #ffffff;
+		border-top: 1px solid #e6e6e6;
+	}
+	.flush {
+		width: 40rpx;
+		height: 40rpx;
+		position: fixed;
+		right: 220rpx;
+		top: 28rpx;
+	}
+</style>
+
+<style>
+	/* #ifndef APP-NVUE */
+	page {
+		background-color: #f2f3f5;
+	}
+
+	/* #endif */
+</style>

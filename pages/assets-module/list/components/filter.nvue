@@ -1,0 +1,326 @@
+<template>
+	<view class="filter-wrap">
+		<u-popup mode="top" :safe-area-inset-bottom="false" :show="show" @close="handleFilter">
+			<view class="filter-block">
+				<list class="filter-content">
+					<!-- 根据数据渲染筛选项 -->
+					<template v-for="(item, index) in filterList">
+						<cell :key="index">
+							<view class="filter-box">
+								<text class="filter-label">{{ item.title }}</text>
+								<view class="filter-list-content">
+									<template v-for="(option, optionIndex) in item.options">
+										<view 
+											class="filter-item" 
+											:class="{'filter-active': option.value === item.value}" 
+											:key="optionIndex"
+											@click="checkOption(index, optionIndex)"
+										>
+											<text class="filter-item-text">{{ option.key }}</text>
+										</view>
+									</template>
+								</view>
+							</view>
+							<template v-if="item.type === 'date' && item.value !== 1">
+								<view class="filter-custom-date" @click="handleCustomDate(index, filterValues[item.key])">
+									<text class="filter-custom-date-text">{{ filterValues[item.key][0] }}</text>
+									<text class="filter-custom-date-to">至</text>
+									<text class="filter-custom-date-text">{{ filterValues[item.key][1] }}</text>
+								</view>
+							</template>
+						</cell>
+					</template>
+					
+					<!-- 空出渐变色区域 -->
+					<cell>
+						<u-gap height="100" />
+					</cell>
+				</list>
+				<!-- 底部按钮 -->
+				<view class="filter-bottom-block">
+					<view class="reset-box" @click="initFilter">
+						<image class="reset-icon" src="/static/images/reset.png" mode="widthFix" />
+						<text class="reset-text">重置</text>
+					</view>
+					<u-button class="filter-btn" text="筛选" @click="handleFilter" />
+				</view>
+				<view class="filter-bg"></view>
+			</view>
+		</u-popup>
+		<!-- 日历组件 -->
+		<u-calendar 
+			closeOnClickOverlay 
+			mode="range" 
+			:month-num="13"
+			:show="showCalendar" 
+			:showSubtitle="false" 
+            :defaultDate="defaultDate"
+            :min-date="new Date().setMonth(new Date().getMonth() - 12)" 
+            :max-date="new Date().setDate(new Date().getDate()+1)"
+			@close="closeCalendar" 
+			@confirm="confirmCalendar" 
+		/>
+	</view>
+</template>
+
+<script>
+	import dayjs from '@/uni_modules/uview-ui/libs/util/dayjs.js';
+	export default {
+		props: {
+			show: {
+				type: Boolean,
+				default: false
+			}
+		},
+		data() {
+			return {
+				showCalendar: false,
+				calendarIndex: null,
+				filterValues: {},
+				filterList: [],
+                defaultDate: []
+			}
+		},
+		created() {
+			this.initFilter()
+		},
+		methods: {
+			/**
+			 * 选择选项
+			 * @param {Object} itemIndex
+			 * @param {Object} optionIndex
+			 */
+			checkOption(itemIndex, optionIndex) {
+				const item = this.filterList[itemIndex]
+				const option = item.options[optionIndex]
+				item.value = item.options[optionIndex].value
+				this.defaultDate = this.filterValues[item.key]
+				if (item.type === 'date') {
+					if (option.value === 1) {
+						this.filterValues[item.key] = []
+					} else if(option.value === 5){
+                        this.showCalendar = true
+				        this.calendarIndex = itemIndex
+                    }else {
+                        const value = option.value
+                        const today = dayjs().format("YYYY-MM-DD")
+                        const week = dayjs().startOf('week').format("YYYY-MM-DD")
+				        const month =  dayjs().startOf('month').format("YYYY-MM-DD");
+                        const Map = {
+                            2: [today, today],
+                            3: [week, today],
+                            4: [month, today]
+                        }
+						// TODO根据各个时间区间来
+						this.filterValues[item.key] = Map[value]
+					}
+				}
+				if (item.type === 'radio') {
+					this.filterValues[item.key] = item.value
+				}
+			},
+			/**
+			 * 确认日期
+			 * @param {Object} rangeDate
+			 */
+			confirmCalendar(rangeDate) {
+				const item = this.filterList[this.calendarIndex]
+				this.filterValues[item.key] = [rangeDate[0], rangeDate[rangeDate.length - 1]]
+				this.defaultDate = this.filterValues[item.key]
+				item.value = 5
+				this.closeCalendar()
+			},
+			/**
+			 * 显示日历
+			 */
+			handleCustomDate(itemIndex, list) {
+				this.showCalendar = true
+				this.defaultDate = list
+				this.calendarIndex = itemIndex
+			},
+			/**
+			 * 关闭日历
+			 */
+			closeCalendar() {
+				this.showCalendar = false
+				this.calendarKey = null
+			},
+			/**
+			 * 处理重置
+			 */
+			initFilter() {
+				this.filterValues = {
+					create: [],
+					status: '',
+					lentOut: '',
+				}
+				this.filterList = [
+					{
+						type: 'date',
+						title: '领用日期',
+						key: 'create',
+						options: [
+							{ key: '不限', value: 1 },
+							{ key: '今天', value: 2 },
+							{ key: '本周', value: 3 },
+							{ key: '本月', value: 4 },
+							{ key: '自定义', value: 5 }
+						],
+						value: 1
+					},
+					{
+						type: 'radio',
+						title: '资产状态',
+						key: 'status',
+						options: [
+							{ key: '全部', value: ''},
+							{ key: '不正常', value: 0 },
+							{ key: '正常', value: 1 }
+						],
+						value: ''
+					},
+					{
+						type: 'radio',
+						title: '是否外借',
+						key: 'lentOut',
+						options: [
+							{ key: '全部', value: '' },
+							{ key: '否', value: 0 },
+							{ key: '是', value: 1 }
+						],
+						value: ''
+					}
+				]
+			},
+			/**
+			 * 关闭
+			 */
+			close() {
+				this.$emit('close')
+			},
+			/**
+			 * 处理筛选
+			 */
+			handleFilter() {
+				this.$emit('filter', this.filterValues)
+			},
+		}
+	}
+</script>
+
+<style scoped>
+	.filter-block {
+		background-color: #ffffff;
+		position: relative;
+	}
+
+	.filter-bg {
+		position: absolute;
+		width: 750rpx;
+		height: 100rpx;
+		bottom: 204rpx;
+		background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+	}
+
+	.filter-content {
+		height: 714rpx;
+	}
+
+	.filter-box {
+		margin-bottom: 22rpx;
+	}
+
+	.filter-label {
+		line-height: 92rpx;
+		padding: 0 25rpx;
+		font-size: 34rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.filter-list-content {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		padding-right: 24rpx;
+	}
+
+	.filter-item {
+		min-width: 120rpx;
+		padding: 0 15rpx;
+		height: 60rpx;
+		background-color: #f8f8f8;
+		border-radius: 4rpx;
+		margin-left: 24rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		transition-property: background-color;
+		transition-duration: 0.1s;
+	}
+
+	.filter-active {
+		background-color: #11479b;
+	}
+
+	.filter-active>.filter-item-text {
+		color: #ffffff !important;
+	}
+
+	.filter-item-text {
+		font-size: 28rpx;
+		color: #222222;
+	}
+
+	.filter-custom-date {
+		padding: 20rpx 0 25rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.filter-custom-date-text {
+		font-size: 30rpx;
+		color: #11479b;
+	}
+
+	.filter-custom-date-to {
+		font-size: 30rpx;
+		color: #222222;
+		margin: 0 10rpx;
+	}
+
+	.filter-bottom-block {
+		height: 204rpx;
+		border-top: 1px solid #ebedf0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding-right: 24rpx;
+	}
+
+	.reset-box {
+		width: 140rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.reset-icon {
+		width: 38rpx;
+		height: 38rpx;
+		margin-bottom: 10rpx;
+	}
+
+	.reset-text {
+		font-size: 20rpx;
+		color: #222222;
+	}
+
+	.filter-btn {
+		flex: 1;
+	}
+</style>

@@ -1,0 +1,36 @@
+<template>
+	<view>
+		<z-info title="个人信息">
+			<z-info-row label="姓名" :content="userInfo.NickName" />
+			<z-info-row label="部门" :content="userInfo.DeptName" />
+			<z-info-row label="邮箱" :content="userInfo.Email" />
+		</z-info>
+	</view>
+</template>
+
+<script>
+	import ZInfo from '@/components/z-info/z-info.nvue'
+	import ZInfoRow from '@/components/z-info/z-info-row.nvue'
+	
+	export default {
+		components: {
+			ZInfo,
+			ZInfoRow
+		},
+		data() {
+			return {
+				userInfo: {}
+			}
+		},
+		onLoad() {
+			this.userInfo = uni.getStorageSync("userInfo")
+			console.log(this.userInfo)
+		},
+	}
+</script>
+
+<style>
+	page {
+		background-color: #f2f3f5;
+	}
+</style>

@@ -1,0 +1,370 @@
+<template>
+	<view class="main-wrap">
+		<view class="top-info-block">
+			<view class="info-block">
+				<text class="label">资产编号：</text>
+				<text class="value">{{formData.Assets_Code}}</text>
+			</view>
+		</view>
+		<!-- #ifdef APP-PLUS -->
+		<list class="form-list-block">
+			<cell>
+		<!-- #endif -->
+		<!-- #ifndef APP-PLUS -->
+		<scroll-view class="form-scroll-block" scroll-y >
+		<!-- #endif -->
+				<text ref="topDom" class="form-title">使用信息</text>
+				<z-form-select
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_UseDEP"
+					v-model="formData.Assets_UseDEP" 
+					label="使用部门" 
+					placeholder="请选择使用部门" 
+					type="dept"
+					key-name="deptName" 
+					border-bottom
+					:required="canEdit" 
+					:readonly="!canEdit"
+					@confirm="confirmDept" />
+				<z-form-select 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_User"
+					v-model="formData.Assets_User" 
+					label="使用人" 
+					placeholder="请选择使用人" 
+					type="userByDept"
+					key-name="nickName" 
+					need-after
+					:after-value="deptId"
+					border-bottom 
+					:required="canEdit" 
+					:readonly="!canEdit || !deptId" />
+				<z-form-date 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_UseDate"
+					v-model="formData.Assets_UseDate" 
+					label="领用日期" 
+					mode="date" 
+					placeholder="请选择领用日期" 
+					border-bottom
+					:required="canEdit" 
+					:readonly="!canEdit" />
+					<!-- #ifdef APP-PLUS -->
+					</cell>
+					<cell>
+					<!-- #endif -->
+				<text class="form-title">基本信息</text>
+				<z-form-input
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_Name"
+					label="资产名称" 
+					v-model="formData.Assets_Name" 
+					placeholder="请输入资产名称" 
+					border-bottom
+					:required="canEdit" 
+					:readonly="!canEdit" />
+				<z-form-select 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_Category"
+					v-model="formData.Assets_Category" 
+					label="资产分类" 
+					placeholder="请选择资产分类" 
+					type="assetsType" 
+					border-bottom
+					key-name="name" 
+					:required="canEdit" 
+					:readonly="!canEdit" />
+				<z-form-select 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Actual_Local"
+					v-model="formData.Actual_Local" 
+					label="存放位置" 
+					placeholder="请选择存放位置" 
+					type="assetsLocal" 
+					border-bottom
+					key-name="name" 
+					:required="canEdit" 
+					:readonly="!canEdit" />
+				<z-form-radio 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_OutFlag"
+					v-model="formData.Assets_OutFlag" 
+					:options="lendOutOptions" 
+					label="是否外借" 
+					border-bottom
+					:required="canEdit" 
+					:readonly="!canEdit" />
+				<z-form-input 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_Original"
+					label="资产原值" 
+					v-model="formData.Assets_Original" 
+					placeholder="请输入资产原值" 
+					type="number" border-bottom
+					:required="canEdit" 
+					:readonly="!canEdit" />
+				<z-form-input 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Assets_Residual"
+					label="资产残值" 
+					v-model="formData.Assets_Residual" 
+					placeholder="请输入资产残值" 
+					type="number" 
+					border-bottom
+					:required="canEdit" 
+					:readonly="!canEdit" />
+				<z-form-radio 
+					:need-change-color="showConfirm"
+					:original-value="originalData.Actual_Type"
+					v-model="formData.Actual_Type" 
+					:options="statusOptions" 
+					label="资产状态" 
+					:required="canEdit"
+					:readonly="!canEdit" />
+					<!-- #ifdef APP-PLUS -->
+					</cell>
+					<cell>
+					<!-- #endif -->
+				<u-gap height="120" />
+			<!-- #ifdef APP-PLUS -->
+			</cell>
+			</list>
+			<!-- #endif -->
+			<!-- #ifndef APP-PLUS -->
+			</scroll-view>
+			<!-- #endif -->
+		<!-- 底部按钮模块 -->
+		<view class="bottom-btn-block">
+			<u-button v-if="!canEdit && !showConfirm" text="编辑" @click="handleEdit" />
+			<u-button v-if="canEdit && !showConfirm" type="success"  text="变更" @click="handleConfirm" />
+			<view class="bottom-mult-block" v-if="!canEdit && showConfirm">
+				<u-button text="取消" @click="handleEdit" />
+				<view class="empty-block"></view>
+				<u-button type="success"  text="确认" @click="handleSave" />
+			</view>
+			<u-safe-bottom />
+		</view>
+	</view>
+</template>
+
+<script>
+	// #ifdef APP-NVUE
+	const dom = uni.requireNativePlugin('dom')
+	// #endif
+	import ZFormSelect from '@/components/z-form-select/z-form-select.nvue'
+	import ZFormRadio from '@/components/z-form-radio/z-form-radio.nvue'
+	import ZFormDate from '@/components/z-form-date/z-form-date.nvue'
+	import ZFormInput from '@/components/z-form-input/z-form-input.nvue'
+
+	export default {
+		components: {
+			ZFormSelect,
+			ZFormRadio,
+			ZFormInput,
+			ZFormDate
+		},
+		data() {
+			return {
+				canEdit: false,
+				showConfirm: false,
+				deptId: '',
+				lendOutOptions: [
+					{
+						label: '否',
+						value: '0'
+					},
+					{
+						label: '是',
+						value: '1'
+					}
+				],
+				statusOptions: [
+					{
+						label: '结果',
+						value: '0'
+					},
+					{
+						label: '正常',
+						value: '1'
+					},
+					{
+						label: '外借',
+						value: '2'
+					},
+					{
+						label: '盘盈',
+						value: '3'
+					}
+				],
+				originalData: {
+					Assets_Category: '', // 资产分类
+					Assets_User: '', // 使用人
+					Assets_Name: '', // 资产名称
+					Assets_UseDate: '', // 领用日期
+					Assets_Original: '', // 资产原值
+					Assets_Residual: '', // 资产残值
+					Actual_Local: '', // 存放位置
+					Assets_OutFlag: '', // 是否外借
+					Assets_UseDEP: '', // 使用部门
+					Actual_Type: '', // 资产状态
+					Transform_Count: 0, // 变更次数
+					currentChange: false
+				},
+				formData: {
+					Assets_Category: '', // 资产分类
+					Assets_User: '', // 使用人
+					Assets_Name: '', // 资产名称
+					Assets_UseDate: '', // 领用日期
+					Assets_Original: '', // 资产原值
+					Assets_Residual: '', // 资产残值
+					Actual_Local: '', // 存放位置
+					Assets_OutFlag: '', // 是否外借
+					Assets_UseDEP: '', // 使用部门
+					Actual_Type: '', // 资产状态
+					Transform_Count: 0, // 变更次数
+					currentChange: false
+				}
+			};
+		},
+		onLoad(options) {
+			this.init(options.item)
+		},
+		methods: {
+			/**
+			 * 获取信息
+			 */
+			init(item) {
+				const data = JSON.parse(item)
+				this.originalData = uni.$u.deepClone(data)
+				this.formData = data
+				this.deptId = data.Assets_UseDeptId
+			},
+			/**
+			 * 处理编辑
+			 */
+			handleEdit() {
+				this.canEdit = true
+				this.showConfirm = false
+			},
+			/**
+			 * 处理确认
+			 */
+			handleConfirm() {
+				this.canEdit = false
+				this.showConfirm = true
+			},
+			/**
+			 * 处理保存
+			 */
+			handleSave() {
+				uni.showModal({
+					title: '提示',
+					content: '请确认是否进行此次变更',
+					success: res => {
+						if (res.confirm) {
+							if (!this.formData.currentChange) {
+								this.formData.Transform_Count += 1
+								this.formData.currentChange = true
+							}
+							this.canEdit = false
+							const eventChannel = this.getOpenerEventChannel();
+							eventChannel.emit('setChange', this.formData);
+							uni.navigateBack({
+							    delta: 1
+							});
+						}
+					}
+				})
+			},
+			/**
+			 * 确认部门
+			 * @param {Object} item
+			 */
+			confirmDept(item) {
+				this.deptId = item.deptId
+				this.formData.Assets_User = ''
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.main-wrap {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		/* #ifndef APP-PLUS */
+		height: calc(100vh - var(--window-top));
+		/* #endif */
+	}
+
+	.top-info-block {
+		height: 140rpx;
+		padding: 0 31rpx 0 24rpx;
+		background-color: #ffffff;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.info-block {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.info-block .label {
+		font-size: 40rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.info-block .value {
+		font-size: 40rpx;
+		font-weight: bold;
+		color: #11479b;
+	}
+
+	.edit-btn {
+		flex-shrink: 0;
+		width: 140rpx;
+	}
+
+	.form-list-block {
+		flex: 1;
+	}
+	
+	.form-scroll-block {
+		flex: 1;
+		height: 0;
+	}
+
+	.form-title {
+		padding: 0 24rpx;
+		font-size: 32rpx;
+		font-weight: bold;
+		line-height: 90rpx;
+		color: #222222;
+	}
+
+	.form-block {
+		background-color: #ffffff;
+	}
+
+	.bottom-btn-block {
+		padding: 20rpx 30rpx;
+		background-color: #ffffff;
+		border-top: 1px solid #e6e6e6;
+	}
+	.bottom-mult-block {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.bottom-mult-block .empty-block {
+		width: 40rpx;
+	}
+</style>

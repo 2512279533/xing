@@ -1,0 +1,252 @@
+<template>
+	<!-- #ifdef APP-NVUE -->
+	<list ref="uniList" class="list-block" loadmoreoffset="100" @loadmore="loadMore">
+		<!-- 下拉刷新模块 -->
+		<refresh v-if="!initLoad && !isScan" class="refresh-block" @pullingdown="onPullingDown" @refresh="refresh"
+			:display="refreshing ? 'show' : 'hide'">
+			<text v-if="!refreshing" class="refresh-text">{{ refreshText }}</text>
+			<loading-indicator v-else class="loading-icon" :animating="refreshing" />
+		</refresh>
+<!-- 
+		<cell v-if="initLoad">
+			<skeleton />
+		</cell> -->
+
+		<cell v-if="list && list.length === 0 && !isScan">
+			<u-empty mode="list" :margin-top="emptyTop" :icon="isScan ? '/static/images/scan.png' : ''" />
+		</cell>
+
+		<cell v-if="list && list.length === 0 && isScan">
+			<u-empty text="请进行扫描" margin-top="150" icon="/static/images/scan.png" width="170" />
+		</cell>
+
+		<!-- 分页列表模块 -->
+		<slot />
+		<!-- <cell v-if="!isScan">
+			<loading class="load-more-block" :display="!initLoad && list && list.length > 0 ? 'show' : 'hide'">
+				<u-line length="140rpx" />
+				<view class="load-more-content">
+					<text class="load-more-text">{{ loadMoreText[loadStatus] }}</text>
+					<loading-indicator v-if="loadStatus === 'loading'" style="height:60rpx;width:60rpx;color:#b7b7b7"
+						animating />
+				</view>
+				<u-line length="140rpx" />
+			</loading>
+		</cell> -->
+	</list>
+	<!-- #endif -->
+	<!-- #ifndef APP-NVUE -->
+	<scroll-view class="scroll-wrap" 
+		refresher-background="transparent" :refresher-threshold="100" :scroll-y="!initLoad" @scrolltolower="loadMore"
+		@refresherrefresh="refresh" enable-back-to-top>
+
+		<skeleton v-if="initLoad" />
+
+		<u-empty v-if="list && list.length === 0 && !isScan" mode="list" :margin-top="emptyTop" />
+		<u-empty v-if="list && list.length === 0 && isScan" text="请进行扫描" margin-top="150" icon="/static/images/scan.png"
+			width="170" />
+
+		<!-- 分页列表模块 -->
+		<slot />
+
+		<!-- 加载更多组件 -->
+		<u-loadmore v-if="!initLoad && list && list.length > 0" :status="loadStatus" margin-bottom="20" line />
+
+	</scroll-view>
+	<!-- #endif -->
+</template>
+
+<script>
+	import Skeleton from './skeleton.nvue'
+
+	export default {
+		props: {
+			list: {
+				type: [Array, null],
+				default: null
+			},
+			pageSize: {
+				type: Number,
+				default: 20
+			},
+			emptyTop: {
+				type: Number,
+				default: 300
+			},
+			init: {
+				type: Boolean,
+				default: true
+			},
+			isScan: {
+				type: Boolean,
+				default: false
+			}
+		},
+		components: {
+			Skeleton
+		},
+		data() {
+			return {
+				initLoad: true,
+				refreshing: true,
+				refreshText: '下拉刷新',
+				loadStatus: 'loadmore',
+				pageIndex: 1,
+				loadMoreText: {
+					'loadmore': '加载更多',
+					'loading': '正在加载...',
+					'nomore': '没有更多了'
+				}
+			}
+		},
+		created() {
+			if (this.init) {
+				this.$emit('refresh', {
+					pageIndex: this.pageIndex,
+					pageSize: this.pageSize,
+					endSuccess: this.endSuccess,
+					pagesEnd: this.pagesEnd
+				})
+			}
+			if (this.isScan) {
+				this.initLoad = false;
+				this.loadStatus = 'nomore';
+			}
+		},
+		methods: {
+			/**
+			 * 上拉加载更多
+			 */
+			loadMore() {
+				if (this.loadStatus === 'loadmore') {
+					this.loadStatus = 'loading'
+					this.pageIndex += 1
+					this.$emit('loadMore', {
+						pageIndex: this.pageIndex,
+						pageSize: this.pageSize,
+						endSuccess: this.endSuccess,
+						pagesEnd: this.pagesEnd
+					})
+				}
+			},
+			/**
+			 * 正在下拉
+			 */
+			onPullingDown(e) {
+				const {
+					viewHeight,
+					pullingDistance
+				} = e
+				this.refreshText = pullingDistance >= viewHeight ? '松开刷新' : '下拉刷新'
+			},
+			/**
+			 * 下拉刷新
+			 */
+			refresh() {
+				// if (!this.refreshing) {
+				// 	this.pageIndex = 1
+				// 	this.refreshing = true
+					this.$emit('refresh', {
+						pageIndex: this.pageIndex,
+						pageSize: this.pageSize,
+						endSuccess: this.endSuccess,
+						pagesEnd: this.pagesEnd
+					})
+				// }
+				
+				
+				// this.initLoad=false
+				// this.refreshing=true
+				uni.$u.toast('刷新成功');
+				// this.endSuccess()
+				
+			},
+			/**
+			 * 结束刷新
+			 */
+			endSuccess() {
+				if (!this.initLoad && this.refreshing) {
+					uni.$u.toast('刷新成功');
+				}
+				this.refreshing = false
+				this.initLoad = false
+				this.loadStatus = 'loadmore';
+				this.$refs.uniList && this.$refs.uniList.resetLoadmore();
+			},
+			/**
+			 * 没有下一页，分页结束
+			 */
+			pagesEnd() {
+				this.loadStatus = 'nomore';
+			},
+			/**
+			 * 重置page
+			 */
+			resetPage() {
+				this.refreshing = false
+				this.loadStatus = 'loadmore'
+				this.pageIndex = 1
+			},
+			/**
+			 * 初始化调用
+			 */
+			initPages() {
+				this.resetPage()
+				this.$emit('refresh', {
+					pageIndex: this.pageIndex,
+					pageSize: this.pageSize,
+					endSuccess: this.endSuccess,
+					pagesEnd: this.pagesEnd
+				})
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.list-block {
+		flex: 1;
+	}
+
+	.refresh-block {
+		width: 750rpx;
+		height: 120rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.refresh-text {
+		font-size: 28rpx;
+		color: #878990;
+	}
+
+	.load-more-block {
+		width: 750rpx;
+		height: 60rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.load-more-content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		margin: 0 30rpx;
+		justify-content: center;
+	}
+
+	.load-more-text {
+		font-size: 28rpx;
+		color: #878990;
+	}
+
+	.loading-icon {
+		width: 60rpx;
+		height: 60rpx;
+		color: #b7b7b7;
+	}
+</style>

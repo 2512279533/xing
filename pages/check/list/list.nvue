@@ -1,0 +1,938 @@
+<template>
+	<view class="main-wrap">
+		<u-tabs :list="tabs" @click="selectTab" :current="current" />
+		<!-- 分页模块 -->
+		<z-list ref="list" class="list-block" :list="list" :init="false" is-scan v-if="this.current==0">
+			<!-- 分页列表模块 -->
+			<cell v-for="(item, index) in list" :key="index">
+				<!-- 盘点任务item -->
+				<view class="list-box" @click="viewDetail(item)">
+					<view class="list-info-block">
+						<view class="list-info-wrap">
+							<view class="list-head-block">
+								<text class="shop-name">单号：{{item.BillNo}}</text>
+								<text
+									:class="['list-status', {'status-0': item.Actual_Type == 1, 'status-1': item.Actual_Type == 2}]">{{statusEnum[item.Actual_Type]}}</text>
+							</view>
+							<view class="list-info-block">
+								<view class="list-info-wrap">
+									<view class="info-row">
+										<text class="info-label ">检具数</text>
+										<text class="shop-name ">{{item.AssetsCount}}</text>
+									</view>
+
+									<view class="info-row">
+										<text class="info-label">盘点机台</text>
+										<text class="shop-name">{{item.DeptID}}</text>
+									</view>
+									<view class="info-row">
+										<text class="info-label">盘点区域</text>
+										<text class="shop-name">{{item.DeptName}}</text>
+									</view>
+
+								</view>
+								<image class="right-icon" src="/static/images/arrow-right-black.png" mode="widthFix" />
+							</view>
+						</view>
+					</view>
+				</view>
+
+			</cell>
+		</z-list>
+		<z-list ref="list" class="list-block" :list="list2" :init="false" is-scan v-if="this.current==1">
+			<!-- 分页列表模块 -->
+			<cell v-for="(item, index) in list2" :key="index">
+				<!-- 盘点任务item -->
+				<view class="list-box" @click="viewDetail(item)">
+					<view class="list-info-block">
+						<view class="list-info-wrap">
+							<view class="list-head-block">
+								<text class="shop-name">单号：{{item.BillNo}}</text>
+								<text
+									:class="['list-status', {'status-0': item.Actual_Type == 1, 'status-1': item.Actual_Type == 2}]">{{statusEnum[item.Actual_Type]}}</text>
+							</view>
+							<view class="list-info-block">
+								<view class="list-info-wrap">
+									<view class="info-row">
+										<text class="info-label ">检具数</text>
+										<text class="shop-name ">{{item.AssetsCount}}</text>
+									</view>
+
+									<view class="info-row">
+										<text class="info-label">盘点机台</text>
+										<text class="shop-name">{{item.DeptID}}</text>
+									</view>
+									<view class="info-row">
+										<text class="info-label">盘点区域</text>
+										<text class="shop-name">{{item.DeptName}}</text>
+									</view>
+
+								</view>
+								<image class="right-icon" src="/static/images/arrow-right-black.png" mode="widthFix" />
+							</view>
+						</view>
+					</view>
+				</view>
+
+			</cell>
+			<!-- </view> -->
+
+		</z-list>
+		<z-list ref="list" class="list-block" :list="list1" :init="false" is-scan v-if="this.current==2">
+			<!-- 分页列表模块 -->
+			<cell v-for="(item, index) in list1" :key="index">
+				<!-- 盘点任务item -->
+				<view class="list-box" @click="viewDetail1(item)">
+					<view class="list-info-block">
+						<view class="list-info-wrap">
+							<view class="list-head-block">
+								<text class="shop-name">单号：{{item.BillNo}}</text>
+								<text
+									:class="['list-status', {'status-0': item.Actual_Type == 1, 'status-1': item.Actual_Type == 2}]">{{statusEnum[item.Actual_Type]}}</text>
+							</view>
+							<view class="list-info-block">
+								<view class="list-info-wrap">
+									<view class="info-row">
+										<text class="info-label ">检具数</text>
+										<text class="shop-name ">{{item.AssetsCount}}</text>
+									</view>
+		
+									<view class="info-row">
+										<text class="info-label">盘点机台</text>
+										<text class="shop-name">{{item.DeptID}}</text>
+									</view>
+									<view class="info-row">
+										<text class="info-label">盘点区域</text>
+										<text class="shop-name">{{item.DeptName}}</text>
+									</view>
+		
+								</view>
+								<image class="right-icon" src="/static/images/arrow-right-black.png" mode="widthFix" />
+							</view>
+						</view>
+					</view>
+				</view>
+		
+			</cell>
+			<!-- </view> -->
+		
+		</z-list>
+		
+	</view>
+</template>
+
+<script>
+	import ZList from '@/components/z-list/z-list.nvue'
+	import url from "../../../common/config.js"
+
+	export default {
+		components: {
+			url,
+			ZList
+		},
+		data() {
+			return {
+				tabs: [
+					{
+						name: '未盘点'
+					},
+					{
+						name: '盘点中'
+					},
+					{
+						name: '已盘点'
+					}
+					
+
+				],
+				list: [
+					// {
+					// 	BillNo: "1244",
+					// 	DeptName: "21"
+
+					// },
+					// {
+					// 	BillNo: "1244",
+					// 	DeptID: "21"
+
+					// },
+					// {
+					// 	BillNo: "1244",
+					// 	DeptID: "21"
+
+					// },
+
+
+					// {
+					// 	BillNo: "1244",
+					// 	DeptID: "21"
+
+					// },
+					// {
+					// 	BillNo: "1244",
+					// 	DeptID: "21"
+
+					// },
+					// {
+					// 	BillNo: "1244",
+					// 	DeptID: "21"
+
+					// },
+					// {
+					// 	BillNo: "1244",
+					// 	DeptID: "21"
+
+					// }
+				],
+				alreadySet: new Set(), // 已扫描集合
+				list1: [],
+				list2:[],
+				net: "",
+				current: 0,
+				statusEnum: {
+					0: '未盘点',
+					1: '盘点中',
+					2: '已盘点',
+				},
+
+			};
+		},
+		onNavigationBarButtonTap() {
+			uni.$u.throttle(() => {
+				this.showFilter = !this.showFilter
+			}, 200)
+		},
+		onShow() {
+			this.isHaveNetwork()
+					
+			this.getList()
+			this.getList1()
+			this.getList2()
+		},
+		onPullDownRefresh() {
+			
+			this.getList()
+			this.getList1()
+			this.getList2()
+			//调用接口完成后添加下方函数,停止当前页面下拉刷新。
+			this.isHaveNetwork()
+			//调用接口完成后添加下方函数,停止当前页面下拉刷新。
+			uni.stopPullDownRefresh()
+			if(this.net=="none"){
+				uni.$u.toast('刷新失败，请检查网络');
+			}else{
+				uni.$u.toast('刷新成功');
+			}
+			
+		},
+		onLoad() {
+			this.userInfo = uni.getStorageSync("userInfo")
+			// alert(this.userInfo.RoleID)
+			this.cases = this.userInfo.RoleID
+			// this.initScan()
+		},
+
+		mounted() {
+			this.getList()
+			this.getList1()
+			this.getList2()
+		},
+		methods: {
+			isHaveNetwork() {
+				uni.getNetworkType({
+					success: (res) => {
+						if (res.networkType == 'none') {
+							uni.showToast({
+								title: '网络异常',
+								icon: "error"
+							});
+							this.net = "none"
+						} else {
+							this.net = "b"
+							console.log("有网") //有网
+						}
+					}
+				});
+			},
+			
+			
+			initScan() {
+				// 获取功率设置
+				const power = uni.getStorageSync('资产扫描')
+				// 设置保存的功率，默认30
+				this.$emit('setPower', power ? Number(power) : 30)
+			
+				uni.$on('rfid', epc => {
+					console.log('获取到rfid', epc)
+					this.findEpc(epc, 'epc')
+				})
+				uni.$on('onScan', assetsCode => {
+					console.log('获取到scan', assetsCode)
+					this.findEpc(assetsCode, 'assetsCode')
+			
+				})
+				uni.$on('onTriggerLong', () => {
+					console.log('扳机长按开始')
+					uni.$emit('repeatScan')
+				})
+				uni.$on('endTriggerLong', () => {
+					console.log('扳机长按结束')
+					uni.$emit('stopScan')
+				})
+				uni.$on('onTriggerOnce', () => {
+					console.log('扳机单次按下')
+					uni.$emit('sigleScan')
+				})
+			},
+			/**
+			 * 查找EPC
+			 */
+			findEpc(str, type) {
+			
+				if (this.scans) {
+					return
+			
+				}
+			
+				// 如果这个epc没有扫到过
+				if (!this.alreadySet.has(str)) {
+					this.list.forEach(res => {
+						if (str == res.assetsEpc) {
+							res.status = 2
+							this.alreadyCount++
+							return
+						} 
+			
+					})
+					// 在已扫描数据内添加该epc
+					this.alreadySet.add(str)
+			
+			
+					uni.request({
+						url: url.BASE_URL+"/api/ESC/App_AssetsQuery_Eam",
+						data: {
+							"epc": str
+						},
+						method: "POST"
+					}).then(res => {
+						if (res[1].data.data != null || res[1].data.data.length != 0) {
+							console.log("77777777")
+							res[1].data.data.status = 3
+							this.list.push(res[1].data.data)
+							console.log(this.list)
+							
+								this.surplusCount++
+							
+			
+						}
+			
+					}).catch(e => {
+						console.log("888888")
+						this.alreadySet.delete(str)
+					})
+				}
+			
+			},
+			
+			
+			
+			
+			
+			// onPullDownRefresh() {
+			// 	uni.stopPullDownRefresh()
+			// 	uni.$u.toast('刷新成功');
+			// },
+			/**
+			 * 选择tab
+			 */
+			selectTab(item) {
+				console.log("选择tab", item)
+				this.current = item.index
+
+				// this.getList()
+				// this.getList1()
+				// this.getList2()
+
+			},
+			getList() {
+				let that = this
+				that.list = []
+				uni.request({
+					
+					url: url.BASE_URL+"/api/ESC/App_InventoryTask_Eam",
+					method: 'POST',
+					data: {
+						status: 0,
+						roleId: this.userInfo.RoleID,
+						userId: this.userInfo.UserID,
+
+					},
+					success: (res) => {
+						that.list = res.data.data
+						console.log(res.data.data)
+
+					}
+				});
+
+
+			},
+			getList2() {
+				let that = this
+				that.list2 = []
+				uni.request({
+					
+					url: url.BASE_URL+"/api/ESC/App_InventoryTask_Eam",
+					method: 'POST',
+					data: {
+						status: 1,
+						roleId: this.userInfo.RoleID,
+						userId: this.userInfo.UserID,
+			
+					},
+					success: (res) => {
+						that.list2 = res.data.data
+						console.log(res.data.data)
+			
+					}
+				});
+			
+			
+			},
+
+			getList1() {
+				let that = this
+				that.list1 = []
+				uni.request({
+					url: url.BASE_URL+'/api/ESC/App_InventoryTask_Eam',
+					method: 'POST',
+					data: {
+						roleId: this.userInfo.RoleID,
+						userId: this.userInfo.UserID,
+						status: 2,
+
+					},
+					success: (res) => {
+						this.list1 = res.data.data
+						console.log(res.data.data)
+					}
+				});
+
+
+			},
+
+			/**
+			 * 查看详情
+			 */
+			viewDetail(item) {
+
+				uni.$u.throttle(() => {
+					uni.$u.route({
+						url: '/pages/check/scan/scan',
+						params: item
+					})
+
+				}, 500)
+			},
+			viewDetail1(item) {
+
+				uni.$u.throttle(() => {
+					uni.$u.route({
+						url: '/pages/check/scan/scan1',
+						params: item
+					})
+
+				}, 500)
+			},
+			viewDetail2(item) {
+			
+				uni.$u.throttle(() => {
+					uni.$u.route({
+						url: '/pages/check/scan/scan2',
+						params: item
+					})
+			
+				}, 500)
+			},
+
+
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.main-wrap {
+
+		height: calc(100vh - var(--window-top));
+
+
+		.scan-top-info {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			padding: 24rpx 24rpx 30rpx;
+		}
+
+		.top-info-text {
+			font-size: 26rpx;
+			color: #969799;
+		}
+
+		.top-info-number {
+			font-size: 26rpx;
+			color: #969799;
+			background-color: #ffffff;
+		}
+
+
+
+		.list-box {
+			background-color: #ffffff;
+			border-radius: 8rpx;
+			display: flex;
+			flex-direction: column;
+			padding: 0 20rpx;
+			margin: 0 30rpx 20rpx;
+		}
+
+		.list-box2 {
+			background-color: #db999a;
+			border-radius: 8rpx;
+			display: flex;
+			flex-direction: column;
+			padding: 0 20rpx;
+			margin: 0 30rpx 20rpx;
+		}
+
+		.list-box:active {
+			opacity: 0.7;
+		}
+
+		.list-head-block {
+			height: 78rpx;
+			border-bottom: 1px solid #ebedf0;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.shop-name {
+			font-size: 34rpx;
+			font-weight: bold;
+			color: #222222;
+		}
+
+		.list-status {
+			font-size: 30rpx;
+			color: #00a34f;
+		}
+
+		.status-0 {
+			color: #faab0c;
+		}
+
+		.status-1 {
+			color: #11479b;
+		}
+
+		.status-2 {
+			color: #00a34f;
+		}
+
+		.list-info-block {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			padding: 24rpx 10rpx 0 0;
+		}
+
+		.list-info-wrap {
+			flex: 1;
+		}
+
+		.right-icon {
+			width: 16rpx;
+			height: 28rpx;
+		}
+
+		.info-row {
+			margin-bottom: 24rpx;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.info-line {
+			height: 78rpx;
+			width: 250px;
+
+			border-bottom: 2px dotted #ebedf0;
+			margin-bottom: 24rpx;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.info-label {
+			width: 190rpx;
+			font-size: 30rpx;
+			color: #969799;
+		}
+
+		.info-value {
+			font-size: 30rpx;
+			color: #323233;
+		}
+
+
+
+		.scan-info-wrap {
+			height: 276rpx;
+			background-color: #ffffff;
+			padding-bottom: 32rpx;
+
+			.scan-top-info {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+				padding: 24rpx 24rpx 30rpx;
+
+
+			}
+
+			.top-info-text {
+				font-size: 26rpx;
+				color: #969799;
+			}
+
+			.main-info-wrap {
+				display: flex;
+				flex-direction: row;
+				align-items: flex-end;
+				justify-content: space-between;
+
+				.info-box {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+
+					.value {
+						font-size: 28rpx;
+						margin-bottom: 12rpx;
+
+						&.blue {
+							color: #11479b;
+						}
+
+						&.red {
+							color: #ee0a24;
+						}
+					}
+
+					.label {
+						font-size: 32rpx;
+						font-weight: bold;
+
+						&.blue {
+							color: #11479b;
+						}
+
+						&.red {
+							color: #ee0a24;
+						}
+					}
+				}
+			}
+		}
+
+		.table-header {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			background-color: #ffffff;
+
+			.table-box {
+				.table-text {
+					font-weight: bold;
+					color: #11479b !important;
+				}
+
+				image {
+					width: 36rpx;
+					height: auto;
+				}
+			}
+		}
+
+		.table-row {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			background-color: #ffffff;
+			border-bottom: 1px solid #f2f3f5;
+		}
+
+		.table-box {
+			flex: 0.3;
+			background-color: #ffffff;
+			height: 80rpx;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			font-size: 32rpx;
+			color: #222222;
+
+			&.status {
+				color: #7b7e7e;
+			}
+
+			&.middle {
+				flex: 0.4;
+			}
+
+			&.green {
+				color: #339f44;
+			}
+
+			&.red {
+				color: #ee0a24
+			}
+		}
+
+		.list-block {
+			height: calc(120% - 516rpx);
+
+			&.read-only {
+				height: calc(120% - 386rpx);
+			}
+		}
+
+		.tips-block {
+			position: fixed;
+			top: 15%;
+			left: 50%;
+			transform: translateX(-50%);
+			padding: 60rpx 40rpx;
+			background-color: #ffffff;
+			color: #222222;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			border-radius: 30rpx;
+
+			view {
+				color: #FFFFFF;
+				font-weight: bold;
+				line-height: 70rpx;
+			}
+
+			.tips-title {
+				font-size: 60rpx;
+				white-space: nowrap;
+				margin-bottom: 20rpx;
+			}
+
+			.tips-sub-title {
+				font-size: 48rpx;
+				margin-bottom: 20rpx;
+			}
+
+			.tips-text {
+				font-size: 42rpx;
+				width: 100%;
+				margin-bottom: 10rpx;
+			}
+		}
+
+		.approval-block {
+			position: absolute;
+
+			.approval-popup-box {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 40rpx 0;
+
+				.approval-popup-title {
+					font-size: 52rpx;
+					font-weight: bold;
+					color: #222222;
+					margin-bottom: 80rpx;
+
+				}
+
+				.approval-select-box {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					margin-bottom: 36rpx;
+
+					.label {
+						width: 220rpx;
+						font-size: 36rpx;
+						font-weight: bold;
+						color: #222222;
+					}
+
+					.value {
+						border-radius: 8rpx;
+						height: 60rpx;
+						width: 300rpx;
+						background-color: #eff0f1;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						padding: 0 24rpx 0 38rpx;
+					}
+				}
+
+				.btn-row-wrap {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: space-between;
+					position: relative;
+					width: 100%;
+					padding: 40rpx 114rpx 10rpx;
+
+					.btn {
+						width: 200rpx;
+					}
+				}
+			}
+
+		}
+
+	}
+
+	.search-block {
+		height: 130rpx;
+		background-color: #11479b;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+	}
+
+	.page-info-block {
+		padding: 0 36rpx;
+		height: 74rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.page-info-text {
+		font-size: 28rpx;
+		color: #222222;
+	}
+
+	.list-block {
+		flex: 1;
+	}
+
+	.list-box {
+		background-color: #ffffff;
+		border-radius: 8rpx;
+		display: flex;
+		flex-direction: column;
+		padding: 0 20rpx;
+		margin: 0 30rpx 20rpx;
+	}
+
+	.list-box:active {
+		opacity: 0.7;
+	}
+
+	.list-head-block {
+		height: 78rpx;
+		border-bottom: 1px solid #ebedf0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.shop-name {
+		font-size: 34rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.list-status {
+		font-size: 30rpx;
+		color: #00a34f;
+	}
+
+	.status-0 {
+		color: #faab0c;
+	}
+
+	.status-1 {
+		color: #11479b;
+	}
+
+	.status-2 {
+		color: #00a34f;
+	}
+
+	.list-info-block {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 24rpx 10rpx 0 0;
+	}
+
+	.list-info-wrap {
+		flex: 1;
+	}
+
+	.right-icon {
+		width: 16rpx;
+		height: 28rpx;
+	}
+
+	.info-row {
+		margin-bottom: 24rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.info-label {
+		width: 190rpx;
+		font-size: 30rpx;
+		color: #969799;
+	}
+
+	.info-value {
+		font-size: 30rpx;
+		color: #323233;
+	}
+
+	.bottom-btn-block {
+		padding: 20rpx 30rpx;
+		background-color: #ffffff;
+		border-top: 1px solid #e6e6e6;
+	}
+
+	.main-contron {
+		padding-top: 20px;
+	}
+</style>
+
+<style>
+	/* #ifndef APP-NVUE */
+	page {
+		background-color: #f2f3f5;
+	}
+
+	/* #endif */
+</style>

@@ -1,0 +1,58 @@
+<template>
+	<view class="info-row-box">
+		<text class="info-label">{{ label }}</text>
+		<text class="info-value" :class="'content-color-'+type">{{ content }}</text>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			label: {
+				type: String,
+				default: ''
+			},
+			content: {
+				type: String,
+				default: ''
+			},
+			type: {
+				type: String,
+				default: ''
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.info-row-box {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		padding: 10rpx 0;
+	}
+	.info-label {
+		width: 217rpx;
+		font-size: 32rpx;
+		line-height: 42rpx;
+		color: #646566;
+	}
+	.info-value {
+		flex: 1;
+		font-size: 32rpx;
+		line-height: 42rpx;
+		color: #323233;
+	}
+	.content-color-success {
+		color: #00a34f;
+	}
+	.content-color-error {
+		color: #ee0a24;
+	}
+	.content-color-never {
+		color: #faab0c;
+	}
+	.content-color-overdue {
+		color: #323233;
+	}
+</style>

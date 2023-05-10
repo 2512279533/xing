@@ -1,0 +1,228 @@
+<template>
+	<view class="form-item-block">
+		<view class="form-normal-wrap" :class="{'form-border-bottom': borderBottom}">
+			<view class="form-label-box">
+				<text class="form-label-text">{{ label }}</text>
+				<text class="form-label-required" v-if="required">*</text>
+			</view>
+			<view class="form-select-box" :class="{'change-bg': needChangeColor && originalValue !== value}" @click="handleSelect">
+				<text class="form-select-input"
+					:class="{'placeholder-style': !value}">{{ value ? value : placeholder }}</text>
+				<image v-if="!readonly" class="form-select-icon" src="/static/images/arrow-right-black.png"
+					mode="widthFix" />
+			</view>
+		</view>
+		<u-datetime-picker :value="value" :show="show" :mode="mode" :defaultIndex="defaultIndex" :minMinute="minMinute"
+			:maxMinute="maxMinute" :minHour="minHour" :maxHour="maxHour" :minDate="minDate" :maxDate="maxDate"
+			@confirm="confirm" @close="close" @cancel="close" />
+	</view>
+</template>
+
+<script>
+	/**
+	 * z-form-select form表单内日期时间选择组件
+	 * @property {String}			label				选择器的标签文本
+	 * @property {Boolean}			required			是否为必选，默认为false（只控制样式）
+	 * @property {Boolean}			borderBottom		是否需要下划线，默认为false
+	 * @property {String}			placeholder			占位符内容，（默认 请选择）
+	 * @property {Boolean}			disabled		    是否可以操作，默认为false
+	 */
+	export default {
+		props: {
+			value: {
+				type: [String, Number],
+				default: ''
+			},
+			label: {
+				type: String,
+				default: ''
+			},
+			required: {
+				type: Boolean,
+				default: false
+			},
+			borderBottom: {
+				type: Boolean,
+				default: false
+			},
+			placeholder: {
+				type: String,
+				default: '请选择'
+			},
+			// 展示格式，mode=date为日期选择，mode=time为时间选择，mode=year-month为年月选择，mode=datetime为日期时间选择
+			mode: {
+				type: String,
+				default: uni.$u.props.datetimePicker.mode
+			},
+			// 可选的最大时间
+			maxDate: {
+				type: Number,
+				// 最大默认值为后10年
+				default: uni.$u.props.datetimePicker.maxDate
+			},
+			// 可选的最小时间
+			minDate: {
+				type: Number,
+				// 最小默认值为前10年
+				default: uni.$u.props.datetimePicker.minDate
+			},
+			// 可选的最小小时，仅mode=time有效
+			minHour: {
+				type: Number,
+				default: uni.$u.props.datetimePicker.minHour
+			},
+			// 可选的最大小时，仅mode=time有效
+			maxHour: {
+				type: Number,
+				default: uni.$u.props.datetimePicker.maxHour
+			},
+			// 可选的最小分钟，仅mode=time有效
+			minMinute: {
+				type: Number,
+				default: uni.$u.props.datetimePicker.minMinute
+			},
+			// 可选的最大分钟，仅mode=time有效
+			maxMinute: {
+				type: Number,
+				default: uni.$u.props.datetimePicker.maxMinute
+			},
+			// 各列的默认索引
+			defaultIndex: {
+				type: Array,
+				default: uni.$u.props.datetimePicker.defaultIndex
+			},
+			readonly: {
+				type: Boolean,
+				default: false
+			},
+			originalValue: {
+				type: [String, Number],
+				default: ''
+			},
+			needChangeColor: {
+				type: Boolean,
+				default: false
+			}
+		},
+		data() {
+			return {
+				show: false
+			}
+		},
+		methods: {
+			/**
+			 * 处理选择
+			 */
+			handleSelect() {
+				if (!this.readonly) {
+					this.show = true
+				}
+			},
+			/**
+			 * 确认日期
+			 * @param {Object} e
+			 */
+			confirm(e) {
+				this.$emit('input', this.getResult(e.value, e.mode))
+				this.close()
+			},
+			/**
+			 * 获取结果
+			 * @param {Object} time
+			 * @param {Object} mode
+			 */
+			getResult(time, mode) {
+				const timeFormat = uni.$u.timeFormat
+				switch (mode) {
+					case 'datetime':
+						return timeFormat(time, 'yyyy-mm-dd hh:MM')
+					case 'date':
+						return timeFormat(time, 'yyyy-mm-dd')
+					case 'year-month':
+						return timeFormat(time, 'yyyy-mm')
+					case 'time':
+						return time
+					default:
+						return ''
+				}
+			},
+			/**
+			 * 关闭日期弹框
+			 */
+			close() {
+				this.show = false
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+
+	.form-item-block:active {
+		opacity: 0.7;
+	}
+
+	.form-normal-wrap {
+		height: 100rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding-right: 15rpx;
+	}
+
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 200rpx;
+	}
+
+	.form-label-text {
+		font-size: 32rpx;
+		color: #101010;
+		font-weight: bold;
+	}
+
+	.form-label-required {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #ff0000;
+	}
+
+	.form-select-box {
+		height: 80rpx;
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 0 16rpx;
+	}
+	
+	.change-bg {
+		background-color: #ffdf7f;
+		border-radius: 10rpx;
+	}
+
+	.form-select-input {
+		flex: 1;
+		font-size: 32rpx;
+		color: #4f4f4f;
+	}
+
+	.placeholder-style {
+		color: #c8c9cc;
+	}
+
+	.form-select-icon {
+		width: 16rpx;
+		height: 28rpx;
+	}
+
+	.form-border-bottom {
+		border-bottom: 1px solid #ededed;
+	}
+</style>

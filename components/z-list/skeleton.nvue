@@ -1,0 +1,25 @@
+<template>
+	<view class="skeleton-list-wrap">
+		<template v-for="i in 10">
+			<view class="skeleton-box" :key="'ske' + i">
+				<u-skeleton
+					rows="1"
+					title
+					loading
+				/>
+			</view>
+		</template>
+	</view>
+</template>
+
+<script>
+</script>
+
+<style scoped lang="scss">
+	.skeleton-box {
+		background-color: #ffffff;
+		border-radius: 8rpx;
+		padding: 30rpx 20rpx;
+		margin: 0 30rpx 15rpx;
+	}
+</style>

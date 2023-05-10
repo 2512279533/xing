@@ -1,0 +1,326 @@
+<template>
+	<view class="main-wrap">
+		<!-- 筛选模块 -->
+		<filter :show="showFilter" @close="closeFilter" @filter='determineFilter' />
+		<!-- 搜索模块 -->
+		<view class="search-block">
+			<u-search v-model="keyword" placeholder="请输入资产名" @custom="handleSearch" />
+		</view>
+		<!-- 小计信息展示 -->
+		<view class="page-info-block">
+			<text class="page-info-text">小计：{{listLength}}</text>
+		</view>
+		<!-- 分页模块 -->
+		<z-list ref="list" class="list-block" :list="list" :init="false" is-scan>
+			<!-- 分页列表模块 -->
+			<template v-if="list && list.length > 0">
+				<cell v-for="(item, index) in list" :key="index">
+					<view class="list-box"
+						v-if="(filterName ? item.Assets_Name.includes(filterName)  : true) && (filterStatus ? item.Actual_Type === filterStatus : true)"
+						@click="viewDetail(item)">
+						<view class="list-head-block">
+							<text class="shop-name">资产编号：{{item.Assets_Code}}</text>
+							<text
+								:class="['list-status', {'status-0': item.Actual_Type == 1, 'status-1': item.Actual_Type == 2}]">{{statusEnum[item.Actual_Type]}}</text>
+						</view>
+						<view class="list-info-block">
+							<view class="list-info-wrap">
+								<view class="info-row">
+									<text class="info-label">资产名称</text>
+									<text class="info-value">{{item.Assets_Name}}</text>
+								</view>
+								<view class="info-row">
+									<text class="info-label">使用部门</text>
+									<text class="info-value">{{item.Assets_UseDEP}}</text>
+								</view>
+							</view>
+							<image class="right-icon" src="/static/images/arrow-right-black.png" mode="widthFix" />
+						</view>
+					</view>
+				</cell>
+			</template>
+		</z-list>
+	</view>
+</template>
+
+<script>
+	import Filter from './components/filter.nvue'
+	import ZList from '@/components/z-list/z-list.nvue'
+
+	export default {
+		components: {
+			Filter,
+			ZList
+		},
+		data() {
+			return {
+				alreadySet: new Set(), // 已扫描集合
+				list: [],
+				statusEnum: {
+					0: '空闲中',
+					1: '领用中',
+					2: '外借中',
+					3: '盘盈'
+				},
+				showFilter: false,
+				keyword: '',
+				filterName: '',
+				filterStatus: '',
+			};
+		},
+		computed: {
+			/**
+			 * 列表长度
+			 */
+			listLength() {
+				if (this.filterStatus || this.filterName) {
+					return this.list.filter(item => {
+						return (this.filterName ? item.Assets_Name.includes(this.filterName) : true) && (this
+							.filterStatus ? item.Actual_Type === this.filterStatus : true)
+					}).length
+				} else {
+					return this.list.length
+				}
+			}
+		},
+		onNavigationBarButtonTap() {
+			uni.$u.throttle(() => {
+				this.showFilter = !this.showFilter
+			}, 200)
+		},
+		onLoad() {
+			getApp().globalData.test_module.InitRFID()
+			// #ifdef APP-PLUS
+			// 初始化扫描
+			this.initScan()
+			// #endif
+		},
+		methods: {
+			onPullDownRefresh() {
+			    
+			    uni.stopPullDownRefresh()
+			     
+			     this.list=[]
+			     uni.$u.toast('刷新成功');
+			    },
+			/**
+			 * 初始化扫描
+			 */
+			initScan() {
+				// 获取功率设置
+				const power = uni.getStorageSync('资产扫描')
+				// 设置保存的功率，默认30
+				this.$emit('setPower', power ? Number(power) : 30)
+				
+				uni.$on('rfid', epc => {
+					console.log('获取到rfid', epc)
+					this.findEpc(epc, 'epc')
+				})
+				uni.$on('onScan', assetsCode => {
+					console.log('获取到scan', assetsCode)
+					this.findEpc(assetsCode, 'assetsCode')
+				})
+				uni.$on('onTriggerLong', () => {
+					console.log('扳机长按开始')
+					uni.$emit('repeatScan')
+				})
+				uni.$on('endTriggerLong', () => {
+					console.log('扳机长按结束')
+					uni.$emit('stopScan')
+				})
+				uni.$on('onTriggerOnce', () => {
+					console.log('扳机单次按下')
+					uni.$emit('sigleScan')
+				})
+			},
+			/**
+			 * 查找EPC
+			 */
+			findEpc(str, type) {
+				// 如果这个epc没有扫到过
+				if (!this.alreadySet.has(str)) {
+					// 在已扫描数据内添加该epc
+					this.alreadySet.add(str)
+					uni.$u.api.assets.find({
+						[type]: str
+					}).then(res => {
+						if (res.data) {
+							this.list.push(res.data)
+						}
+					}).catch(e => {
+						this.alreadySet.delete(str)
+					})
+				}
+			},
+			/**
+			 * 搜索
+			 */
+			handleSearch() {
+				this.filterName = this.keyword
+			},
+			/**
+			 * 查看详情
+			 */
+			viewDetail(item) {
+				uni.$u.throttle(() => {
+					uni.$u.route({
+						url: '/pages/scan-module/detail/detail',
+						params: item
+					})
+				}, 500)
+			},
+			/**
+			 * 关闭筛选
+			 */
+			determineFilter(data) {
+				this.filterStatus = data.status
+				this.showFilter = false
+				this.$nextTick(() => {
+					this.$refs.list.initPages()
+				})
+			},
+			/**
+			 * 关闭筛选
+			 */
+			closeFilter(data) {
+				this.showFilter = false
+			}
+		},
+		onUnload() {
+			// #ifdef APP-PLUS
+			uni.$off('rfid')
+			uni.$off('onScan')
+			uni.$off('onTriggerLong')
+			uni.$off('endTriggerLong')
+			uni.$off('onTriggerOnce')
+			// #endif
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.main-wrap {
+		flex: 1;
+	}
+
+	.search-block {
+		height: 130rpx;
+		background-color: #11479b;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+	}
+
+	.page-info-block {
+		padding: 0 36rpx;
+		height: 74rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.page-info-text {
+		font-size: 28rpx;
+		color: #222222;
+	}
+
+	.list-block {
+		flex: 1;
+	}
+
+	.list-box {
+		background-color: #ffffff;
+		border-radius: 8rpx;
+		display: flex;
+		flex-direction: column;
+		padding: 0 20rpx;
+		margin: 0 30rpx 20rpx;
+	}
+
+	.list-box:active {
+		opacity: 0.7;
+	}
+
+	.list-head-block {
+		height: 78rpx;
+		border-bottom: 1px solid #ebedf0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.shop-name {
+		font-size: 34rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.list-status {
+		font-size: 30rpx;
+		color: #00a34f;
+	}
+
+	.status-0 {
+		color: #ee0a24;
+	}
+
+	.status-1 {
+		color: #faab0c;
+	}
+
+	.status-2 {
+		color: #323233;
+	}
+
+	.list-info-block {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 24rpx 10rpx 0 0;
+	}
+
+	.list-info-wrap {
+		flex: 1;
+	}
+
+	.right-icon {
+		width: 16rpx;
+		height: 28rpx;
+	}
+
+	.info-row {
+		margin-bottom: 24rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.info-label {
+		width: 190rpx;
+		font-size: 30rpx;
+		color: #969799;
+	}
+
+	.info-value {
+		font-size: 30rpx;
+		color: #323233;
+	}
+
+	.bottom-btn-block {
+		padding: 20rpx 30rpx;
+		background-color: #ffffff;
+		border-top: 1px solid #e6e6e6;
+	}
+</style>
+
+<style>
+	/* #ifndef APP-NVUE */
+	page {
+		background-color: #f2f3f5;
+	}
+
+	/* #endif */
+</style>

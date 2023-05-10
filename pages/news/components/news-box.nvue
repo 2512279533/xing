@@ -1,0 +1,128 @@
+<template>
+	<view class="box-block">
+		<view class="box-content" ref="box-block">
+			<view class="box" ref="box-content" @tap="clickHandler">
+				<view class="list-title-row">
+					<text class="list-title-text">{{item.listType ? sbEnum[item.listType] : typeEnum[type]}}</text>
+					<text class="list-date-text">{{item.BillDate}}</text>
+				</view>
+				<view class="list-content-row">
+					<view class="list-content">
+						<text class="list-content-text u-line-1">{{item.BillNo}}</text>
+					</view>
+				</view>
+			</view>	
+		</view>
+	</view>	
+</template>
+
+<script>
+	export default {
+		props: {
+			item: {
+				type: Object,
+				default: () => {
+					return {}
+				}
+			},
+			type: {
+				type: Number,
+				default: 0
+			}
+		},
+		data() {
+			return {
+				typeEnum: {
+					0: '',
+					1: '入库单',
+					2: '盘点单'
+				},
+				sbEnum: {
+					'1': '盘点单',
+					'2': '资产变更'
+				}
+			}
+		},
+		methods: {
+			/**
+			 * 处理点击
+			 */
+			clickHandler() {
+				this.$emit('click', this.item)
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.box-block {
+		padding: 0 30rpx;
+		margin-bottom: 15rpx;
+	}
+	.box-content {
+		position: relative;
+		overflow: hidden;
+	}
+	.box-button {
+		padding-left: 10rpx;
+		width: 170rpx;
+		height: 175rpx;
+		background: #ee0a24;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0 10rpx 10rpx 0;
+	}
+	.box-button-text {
+		font-size: 30rpx;
+		color: #ffffff;
+	}
+	.box {
+		background-color: #ffffff;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 0 20rpx;
+		border-radius: 8rpx;
+		height: 160rpx;
+		z-index: 10;
+	}
+	.list-title-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 28rpx;
+	}
+	
+	.list-title-text {
+		font-size: 34rpx;
+		color: #222222;
+	}
+	
+	.list-date-text {
+		font-size: 24rpx;
+		color: #888888;
+	}
+	.list-content-row {
+		display: flex;
+		align-items: center;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.list-content {
+		width: 524rpx;
+	}
+	
+	.list-content-text {
+		font-size: 28rpx;
+		color: #555555;
+	}
+	
+	.tips-round {
+		width: 16rpx;
+		height: 16rpx;
+		background-color: #ee0a24;
+		border-radius: 50%;
+	}
+</style>

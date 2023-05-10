@@ -1,0 +1,608 @@
+{
+	"pages": [{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "",
+				"backgroundColor": "#ffffff",
+				"backgroundColorTop": "#ffffff",
+				"backgroundColorBottom": "#ffffff"
+			}
+		},
+		
+		{
+			"path": "pages/retrieve-password/retrieve-password",
+			"style": {
+				"navigationBarTitleText": "找回密码",
+				"backgroundColor": "#ffffff",
+				"backgroundColorTop": "#ffffff",
+				"backgroundColorBottom": "#ffffff",
+				"app-plus": {}
+			}
+		},
+		{
+			"path": "pages/mine/mine",
+			"style": {
+				"enablePullDownRefresh": true,
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		// {
+		// 	"path": "pages/news/news",
+		// 	"style": {
+		// 		"navigationBarTitleText": "消息",
+		// 		"enablePullDownRefresh": false,
+		// 		"navigationBarBackgroundColor": "#11479b",
+		// 		"navigationBarTextStyle": "white",
+		// 		"backgroundColor": "#f2f3f5",
+		// 		"backgroundColorTop": "#f2f3f5",
+		// 		"backgroundColorBottom": "#f2f3f5"
+		// 	}
+		// },
+		{
+			"path": "pages/home/home",
+			"style": {
+				"navigationBarTitleText": "首页",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		}, 
+		{
+			"path": "pages/home/check/check",
+			"style": {
+				"navigationBarTitleText": "RFID APP",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		
+		{
+			"path": "pages/change-password/change-password",
+			"style": {
+				"navigationBarTitleText": "修改密码",
+				"backgroundColor": "#ffffff",
+				"backgroundColorTop": "#ffffff",
+				"backgroundColorBottom": "#ffffff",
+				"app-plus": {}
+			}
+		},
+		{
+			"path": "pages/assets-module/list/list",
+			"style": {
+				"enablePullDownRefresh": true,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5",
+				"app-plus": {
+					"titleNView": {
+						"titleText": "资产列表",
+						"buttons": [{
+							"text": "\ue74e",
+							"fontSrc": "/static/icon-font/zl.ttf",
+							"width": "50px",
+							"fontSize": "38rpx",
+							"color": "#fff"
+						}]
+					}
+				}
+			}
+		},
+		
+		{
+			"path": "pages/assets-module/detail/detail",
+			"style": {
+				"navigationBarTitleText": "资产详情",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/rece/rece-detail",
+			"style": {
+				"navigationBarTitleText": "检具详情",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/back/back",
+			"style": {
+				"navigationBarTitleText": "归还",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5",
+				"app-plus": {
+				     "titleNView": {
+				      "autoBackButton":false,
+				      "buttons": [
+				       {
+				        "type": "back",
+				        "float": "left"
+				       }
+				      ]
+				      
+				     }
+				    }
+			}
+		},
+		{
+			"path": "pages/back/back-detail",
+			"style": {
+				"navigationBarTitleText": "检具详情",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/back/next",
+			"style": {
+				"navigationBarTitleText": "归还",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/rece/test",
+			"style": {
+				"navigationBarTitleText": "归还",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/rece/rece",
+			"style": {
+				"navigationBarTitleText": "运输领用",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/rece/next",
+			"style": {
+				"navigationBarTitleText": "运输领用",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/inventory-module/list/list",
+			"style": {
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5",
+				"app-plus": {
+					"titleNView": {
+						"titleText": "盘点列表",
+						"buttons": [{
+							"text": "\ue74e",
+							"fontSrc": "/static/icon-font/zl.ttf",
+							"width": "50px",
+							"fontSize": "38rpx",
+							"color": "#fff"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/inventory-module/scan/scan",
+			"style": {
+				"disableScroll": false,
+				"navigationBarTitleText": "盘点",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+	
+		
+		
+		{
+		           "path": "pages/news/news",
+		           "style": {
+		            "navigationBarTitleText": "消息",
+		            "enablePullDownRefresh": true,
+					"navigationBarBackgroundColor": "#11479b",
+							"navigationBarTextStyle": "white",
+							"backgroundColor": "#f2f3f5",
+							"backgroundColorTop": "#f2f3f5",
+							"backgroundColorBottom": "#f2f3f5"
+		           }
+		          }
+		  ,
+		  
+		  // {
+		  // 	"path": "pages/news/news",
+		  // 	"style": {
+		  // 		"navigationBarTitleText": "消息",
+		  // 		"enablePullDownRefresh": false,
+		  // 		"navigationBarBackgroundColor": "#11479b",
+		  // 		"navigationBarTextStyle": "white",
+		  // 		"backgroundColor": "#f2f3f5",
+		  // 		"backgroundColorTop": "#f2f3f5",
+		  // 		"backgroundColorBottom": "#f2f3f5"
+		  // 	}
+		  // },
+		  
+		  
+		  
+		{
+			"path": "pages/inventory-module/detail/detail",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "盘点",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/entry-assets/list/list",
+			"style": {
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5",
+				"app-plus": {
+					"titleNView": {
+						"titleText": "资产录入",
+						"buttons": [{
+							"text": "\ue74e",
+							"fontSrc": "/static/icon-font/zl.ttf",
+							"width": "50px",
+							"fontSize": "38rpx",
+							"color": "#fff"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/entry-assets/assets-list/assets-list",
+			"style": {
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5",
+				"app-plus": {
+					"titleNView": {
+						"titleText": "资产录入",
+						"buttons": [{
+							"text": "\ue74e",
+							"fontSrc": "/static/icon-font/zl.ttf",
+							"width": "50px",
+							"fontSize": "38rpx",
+							"color": "#fff"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/entry-assets/edit/edit",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "资产录入",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/scan-module/list/list",
+			"style": {
+				"enablePullDownRefresh": true
+				,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5",
+				"app-plus": {
+					"titleNView": {
+						"titleText": "扫描查询",
+						"buttons": [{
+							"text": "\ue74e",
+							"fontSrc": "/static/icon-font/zl.ttf",
+							"width": "50px",
+							"fontSize": "38rpx",
+							"color": "#fff"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/scan-module/detail/detail",
+			"style": {
+				"disableScroll": false,
+				"navigationBarTitleText": "扫描查询",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/assets-change-module/list/list",
+			"style": {
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5",
+				"app-plus": {
+					"titleNView": {
+						"titleText": "资产变更",
+						"buttons": [{
+							"text": "\ue74e",
+							"fontSrc": "/static/icon-font/zl.ttf",
+							"width": "50px",
+							"fontSize": "38rpx",
+							"color": "#fff"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/assets-change-module/detail/detail",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "资产变更",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/setting/setting",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "系统设置",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		},
+		{
+			"path": "pages/user-info/user-info",
+			"style": {
+				"disableScroll": true,
+				"navigationBarTitleText": "用户信息",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#11479b",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#f2f3f5",
+				"backgroundColorTop": "#f2f3f5",
+				"backgroundColorBottom": "#f2f3f5"
+			}
+		}
+        
+    ,
+	{
+	    "path" : "pages/tuck-comb/detail/detail",
+	  "style": {
+	  	"disableScroll": true,
+	  	"navigationBarTitleText": "发卡绑定",
+	  	"enablePullDownRefresh": false,
+	  	"navigationBarBackgroundColor": "#11479b",
+	  	"navigationBarTextStyle": "white",
+	  	"backgroundColor": "#f2f3f5",
+	  	"backgroundColorTop": "#f2f3f5",
+	  	"backgroundColorBottom": "#f2f3f5"
+	  }
+	    
+	},
+	{
+		"path": "pages/check/list/list",
+		"style": {
+			"disableScroll": true,
+			"navigationBarTitleText": "盘点",
+			"enablePullDownRefresh": true,
+			"navigationBarBackgroundColor": "#11479b",
+			"navigationBarTextStyle": "white",
+			"backgroundColor": "#f2f3f5",
+			"backgroundColorTop": "#f2f3f5",
+			"backgroundColorBottom": "#f2f3f5"
+		}
+	},
+	{
+		"path": "pages/check/scan/scan",
+		"style": {
+			"disableScroll": true,
+			"navigationBarTitleText": "盘点",
+			"enablePullDownRefresh": false,
+			"navigationBarBackgroundColor": "#11479b",
+			"navigationBarTextStyle": "white",
+			"backgroundColor": "#f2f3f5",
+			"backgroundColorTop": "#f2f3f5",
+			"backgroundColorBottom": "#f2f3f5"
+		}
+	},
+	
+	{
+		"path": "pages/check/scan/scan1",
+		"style": {
+			"disableScroll": true,
+			"navigationBarTitleText": "盘点",
+			"enablePullDownRefresh": false,
+			"navigationBarBackgroundColor": "#11479b",
+			"navigationBarTextStyle": "white",
+			"backgroundColor": "#f2f3f5",
+			"backgroundColorTop": "#f2f3f5",
+			"backgroundColorBottom": "#f2f3f5"
+		}
+	},
+	{
+		"path": "pages/check/scan/scan2",
+		"style": {
+			"disableScroll": true,
+			"navigationBarTitleText": "盘点",
+			"enablePullDownRefresh": false,
+			"navigationBarBackgroundColor": "#11479b",
+			"navigationBarTextStyle": "white",
+			"backgroundColor": "#f2f3f5",
+			"backgroundColorTop": "#f2f3f5",
+			"backgroundColorBottom": "#f2f3f5"
+		}
+	},
+	{
+		"path": "pages/check/scan/find",
+		"style": {
+			"disableScroll": true,
+			"navigationBarTitleText": "锁定查找",
+			"enablePullDownRefresh": false,
+			"navigationBarBackgroundColor": "#11479b",
+			"navigationBarTextStyle": "white",
+			"backgroundColor": "#f2f3f5",
+			"backgroundColorTop": "#f2f3f5",
+			"backgroundColorBottom": "#f2f3f5"
+		}
+	},
+		{
+				"path": "pages/receive-line/receive",
+				"style": {
+					"disableScroll": true,
+					"navigationBarTitleText": "产线领用",
+					"enablePullDownRefresh": false,
+					"navigationBarBackgroundColor": "#11479b",
+					"navigationBarTextStyle": "white",
+					"backgroundColor": "#f2f3f5",
+					"backgroundColorTop": "#f2f3f5",
+					"backgroundColorBottom": "#f2f3f5"
+				}
+			},
+			{
+					"path": "pages/receive-line/back",
+					"style": {
+						"disableScroll": true,
+						"navigationBarTitleText": "归还",
+						"enablePullDownRefresh": false,
+						"navigationBarBackgroundColor": "#11479b",
+						"navigationBarTextStyle": "white",
+						"backgroundColor": "#f2f3f5",
+						"backgroundColorTop": "#f2f3f5",
+						"backgroundColorBottom": "#f2f3f5"
+					}
+				}
+				
+	
+        
+      
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "银响力监管",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#FFFFFF"
+	},
+	"tabBar": {
+		"color": "#222222",
+		"selectedColor": "#11479b",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "white",
+		"list": [
+			{
+				"iconPath": "static/tab-bar/supervision.png",
+				"selectedIconPath": "static/tab-bar/supervision-selected.png",
+				"pagePath": "pages/home/home",
+				"text": "首页"
+			},
+			{
+				"iconPath": "static/tab-bar/news.png",
+				"selectedIconPath": "static/tab-bar/news-selected.png",
+				"pagePath": "pages/news/news",
+				"text": "通知"
+			},
+			{
+				"iconPath": "static/tab-bar/mine.png",
+				"selectedIconPath": "static/tab-bar/mine-selected.png",
+				"pagePath": "pages/mine/mine",
+				"text": "我的"
+			}
+		]
+		
+	
+	},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

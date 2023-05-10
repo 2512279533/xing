@@ -1,0 +1,300 @@
+<template>
+	<view>
+		
+		<view class="function-list-wrap">
+			<template v-for="(item, index) in functionList">
+				<view v-if="item.RoleID === userInfo.RoleID || item.RoleID === 11">
+				<view class="function-box" @click="tapFun(item)">
+					<image class="function-icon" :src="item.icon" />
+					<text class="function-label">{{ item.label }}</text>
+				    </view> 
+				</view>
+			</template>
+		    </view>
+		</view>
+		
+
+</template>
+
+<script>
+	 import myTabbar from '../../components/my-tabbar/my-tabbar.vue'
+	import permission from '@/util/wa-permission/permission.js'
+	
+	export default {
+		data() {
+			return {
+			message:12,
+				userInfo: {},
+				homeData: {
+					busy: '10',
+					free: '11',
+					month: '0',
+					total: '2'
+				},
+				functionList: [{
+						label: '发卡绑定',
+						icon: '/static/images/home-fuc-1.png',
+						url: '/pages/assets-module/list/list',
+						RoleID: 1
+					},
+					
+					{
+						label: '领用',
+						icon: '/static/images/home-fuc-4.png',
+						url: '/pages/rece/rece',
+						RoleID: 12
+					},
+					{
+						label: '归还',
+						icon: '/static/images/home-fuc-5.png',
+						url: '/pages/back/back',
+						RoleID: 12
+					},{
+						label: '检具盘点',
+						icon: '/static/images/home-fuc-3.png',
+						url: '/pages/inventory-module/list/list',
+						RoleID: 3
+					},
+					{
+						label: '检具盘点',
+						icon: '/static/images/home-fuc-3.png',
+						url: '/pages/inventory-module/list/list',
+						RoleID: 10
+					},
+					{
+						label: '扫描查询',
+						icon: '/static/images/home-fuc-2.png',
+						url: '/pages/scan-module/list/list',
+						RoleID: 11
+					}
+				]
+			};
+		},
+		onShow() {
+			this.getData()
+			
+		},
+		onLoad() {
+			uni.showTabBar()
+			this.userInfo = uni.getStorageSync("userInfo")
+			
+			
+			
+			// this.userInfo.RoleID=2;
+			
+			
+			
+			uni.setNavigationBarTitle({
+				title: '首页'
+			})
+		},
+		methods: {
+			/**
+			 * 点击功能
+			 * @param {Object} item
+			 */
+			tapFun(item) {
+				uni.$u.route(item.url)
+			},
+			/**
+			 * 获取数据
+			 */
+			getData() {
+				uni.$u.api.user.homeData().then(res => {
+					this.homeData = res.data
+				}).catch(e => {
+					console.log(e)
+				})
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.home-num-wrap {
+		background-color: #ffffff;
+		margin-bottom: 30rpx;
+		
+		padding: 40rpx 0;
+	}
+
+	.top-num {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 20rpx;
+	}
+
+	.top-num .label {
+		margin-bottom: 16rpx;
+	}
+
+	.top-num .label .label-text {
+		font-size: 42rpx;
+		font-weight: bold;
+		color: #000000;
+	}
+
+	.top-num .value {
+		margin-bottom: 12rpx;
+	}
+
+	.top-num .value .value-text {
+		font-size: 42rpx;
+		font-weight: bold;
+		color: #11479b;
+	}
+
+	.other-num {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-around;
+	}
+
+	.other-num-box {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.other-num-box .label {
+		margin-bottom: 12rpx;
+	}
+
+	.other-num-box .label .label-text {
+		font-size: 38rpx;
+		font-weight: 500;
+		color: #000000;
+	}
+
+	.other-num-box .value-text {
+		font-size: 34rpx;
+		color: #555555;
+	}
+
+	.other-num-box .value-text.green {
+		color: #008000 !important;
+	}
+
+	.other-num-box .value-text.orange {
+		color: #FFA500;
+	}
+
+	.function-list-wrap {
+		background-color: #f2f3f5;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		padding: 100rpx 130rpx 0;
+	}
+
+	.function-box {
+		width: 234rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 60rpx;
+	}
+
+	.function-box:active {
+		opacity: 0.7;
+	}
+
+	.function-icon {
+		width: 98rpx;
+		height: 98rpx;
+		margin-bottom: 20rpx;
+	}
+
+	.function-label {
+		font-size: 28rpx;
+		color: #555555;
+	}
+	  .warp {
+	        background-color: #ffffff;
+			position: fixed;
+			width: 1000%;
+			height: 50%;
+			bottom: 0%;
+	    }
+		
+		.img1{
+			position: fixed;
+			width: 20%;
+			height: 20%;
+		}
+		.img2{
+			position: fixed;
+			width: 20%;
+			height: 20%;
+		}
+		.img3{
+			position: fixed;
+			width: 20%;
+			height: 20%;
+		}
+		.textA{
+			
+			position: fixed;
+			bottom: 10%;
+		}
+		.textB{
+			position: fixed;
+			
+		}
+		.textC{
+			position: fixed;
+			
+		}
+		.uni-badge {
+				margin-left: 20rpx;
+			}
+		
+	
+			.example-body {
+				flex-direction: row;
+				justify-content: flex-start;
+			}
+		
+			.uni-badge-left-margin {
+				margin-left: 10px;
+			}
+		
+			.uni-badge-absolute {
+				margin-left: 40px;
+			}
+		
+			.box {
+				width: 40px;
+				height: 40px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+				background-color: #DCDFE6;
+				color: #fff;
+				font-size: 12px;
+			}
+		
+			.box-text {
+				text-align: center;
+				color: #fff;
+				font-size: 12px;
+			}
+		
+</style>
+
+<style>
+
+	page {
+		position: fixed;
+		background-color: #ffffff;
+	}
+
+
+</style>

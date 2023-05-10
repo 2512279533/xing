@@ -1,0 +1,411 @@
+<template>
+	<view class="main-wrap">
+		<list class="main-content">
+			<cell>
+				<z-info title="基础信息">
+					<z-info-row label="资产编号" :content="formData.assetsCode" />
+					<z-info-row label="资产名称" :content="formData.assetsName" />
+					<z-info-row label="规格型号" :content="formData.assetsType" />
+					<z-info-row label="开始使用日期" :content="formData.assetsUseDate" />
+					<z-info-row label="使用年限(月)" :content="formData.assetsUseMonth" />
+					<z-info-row label="使用部门" :content="formData.assetsUseDEP" />
+					<z-info-row label="保管人" :content="formData.assetsUser" />
+					<z-info-row label="存放地" :content="formData.assetsLocal" />
+					<z-info-row label="是否外借" :content="formData.assetsOutFlag" />
+					<z-info-row label="盘点部门" :content="formData.assetsCheckDEP" />
+<!-- 					<z-info-row label="原值" :content="formData.assetsOriginal" />
+					<z-info-row label="净残值" :content="formData.assetsResidual" /> -->
+				</z-info>
+			</cell>
+			<cell>
+				<text class="title-text">实际信息</text>
+				<z-form-radio
+					:readonly="status == 1"
+					v-model="formData.actualType" 
+					:options="useTypeOptions" 
+					label="实际使用状况" 
+					:required="status != 1" />
+				<z-form-select
+					:readonly="status == 1"
+					v-model="formData.actualDep" 
+					label="实际使用部门" 
+					placeholder="请选择实际使用部门" 
+					type="dept"
+					key-name="deptName" 
+					:required="status != 1"
+					@confirm="confirmDept" />
+				<z-form-select
+					v-model="formData.actualUser" 
+					label="实际保管人" 
+					placeholder="请选择实际保管人" 
+					type="userByDept"
+					key-name="nickName" 
+					need-after
+					:after-value="deptId"
+					border-bottom 
+					:required="status != 1"
+					:readonly="!deptId || status == 1" />
+				<z-form-select
+					:readonly="status == 1"
+					v-model="formData.actualLocal" 
+					label="实际保存地" 
+					placeholder="请选择实际保存地" 
+					type="assetsLocal" 
+					border-bottom
+					key-name="name" 
+					:required="status != 1" />
+				<view class="form-item-block">
+					<view class="form-normal-wrap form-border-bottom">
+						<view class="form-label-box">
+							<text class="form-label-text">扫描RFID</text>
+							<text class="form-label-required" v-if="status != 1">*</text>
+						</view>
+						<view class="form-select-box">
+							<text class="form-select-input"
+								:class="{'placeholder-style': !formData.assetsEpc, 'red': [0, 2].includes(tagStatus), 'green': tagStatus === 1}">
+								{{ tagEnum[tagStatus] ? tagEnum[tagStatus] : formData.assetsEpc ? formData.assetsEpc : '请扣动扳机操作' }}
+							</text>
+							<u-icon name="tags-fill" size="50" />
+						</view>
+					</view>
+				</view>
+				<z-form-upload :disabled="status == 1" v-model="formData.assetsImg" label="实物拍照" />
+			</cell>
+			<cell>
+				<u-gap height="200" />
+			</cell>
+		</list>
+		<!-- 底部按钮模块 -->
+		<view class="bottom-btn-block" v-if="status != 1">
+			<view class="bottom-btn-row">
+				<view class="btn">
+					<u-button text="重置" @click="reset" />
+				</view>
+				<view class="btn">
+					<u-button type="success"  text="保存" @click="handleSave" />
+				</view>
+			</view>
+			<u-safe-bottom />
+		</view>
+
+	</view>
+</template>
+
+<script>
+	import dayjs from '@/uni_modules/uview-ui/libs/util/dayjs.js';
+	import ZFormSelect from '@/components/z-form-select/z-form-select.nvue'
+	import ZFormRadio from '@/components/z-form-radio/z-form-radio.nvue'
+	import ZFormUpload from '@/components/z-form-upload/z-form-upload.nvue'
+	import ZInfo from '@/components/z-info/z-info.nvue'
+	import ZInfoRow from '@/components/z-info/z-info-row.nvue'
+
+	export default {
+		components: {
+			ZFormSelect,
+			ZFormRadio,
+			ZFormUpload,
+			ZInfo,
+			ZInfoRow
+		},
+		data() {
+			return {
+				deptId: '',
+				status: '',
+				wbId: '',
+				tempEpc: '',
+				assetsCode: '',
+				tagStatus: null, // 0 错误 1 正确 2 未扫到
+				tagEnum: {
+					0: 'Wrong Tag!',
+					2: 'No Tag!'
+				},
+				formData: {
+					actualType: '1',
+					actualDep: '',
+					actualUser: '',
+					actualLocal: '',
+					assetsEpc: '',
+					assetsImg : [],
+					wbId: ''
+				},
+				resetData: {
+					actualType: '1',
+					actualDep: '',
+					actualUser: '',
+					actualLocal: '',
+					assetsEpc: '',
+					assetsImg : [],
+					wbId: ''
+				},
+				useTypeOptions: [
+					{
+						label: '结果',
+						value: '0'
+					},
+					{
+						label: '正常',
+						value: '1'
+					},
+					{
+						label: '外借',
+						value: '2'
+					},
+					{
+						label: '盘盈',
+						value: '3'
+					}
+				],
+			};
+		},
+		onLoad(options) {
+			const { wbId, status, assetsCode } = options
+			this.wbId = wbId
+			this.status = status
+			this.assetsCode = assetsCode
+			this.getData()
+			// #ifdef APP-PLUS
+			// 初始化扫描
+			if (this.status != 1) {
+				this.initScan()
+			}
+			// #endif
+		},
+		methods: {
+			/**
+			 * 初始化数据
+			 */
+			getData() {
+				uni.$u.api.entryAssets.detail({assetsCode: this.assetsCode, wbId: this.wbId}).then(res => {
+					const actualType = res.data?.actualType?.toString() ?? '1'
+					const assetsImg = res.data?.assetsImg?.split(',') ?? []
+					this.formData = {
+						...res.data,
+						wbId: this.wbId,
+						actualType: actualType,
+						assetsImg: assetsImg,
+						assetsEpc: '00000000000000'
+					}
+					this.resetData = uni.$u.deepClone(this.formData)
+				}).catch(err => {
+					console.log(err)
+				})
+			},
+			/**
+			 * 初始化扫描
+			 */
+			initScan() {
+				// 获取功率设置
+				const power = uni.getStorageSync('资产录入')
+				// 设置保存的功率，默认30
+				this.$emit('setPower', power ? Number(power) : 30)
+				
+				uni.$on('rfid', epc => {
+					console.log('获取到rfid', epc)
+					this.tempEpc = epc
+					this.validEpc(epc)
+				})
+				uni.$on('onTrigger', () => {
+					console.log('扳机开始')
+					this.tagStatus = null
+					uni.$emit('sigleScan')
+				})
+				uni.$on('offTrigger', () => {
+					console.log('扳机结束')
+					if (!this.tempEpc) {
+						this.tagStatus = 2
+					}
+				})
+			},
+			/**
+			 * 校验epc
+			 */
+			validEpc(epc) {
+				uni.$u.api.entryAssets.validEpc({
+					assetsCode: this.assetsCode,
+					epc
+				}).then(res => {
+					this.tagStatus = res.available
+					if (res.available === 1) {
+						this.formData.assetsEpc = epc
+					}
+					this.tempEpc = ''
+				}).catch(err => {
+					console.log(err)
+					this.tempEpc = ''
+				})
+			},
+			/**
+			 * 提交
+			 */
+			handleSave() {
+				console.log(this.formData)
+				if (this.formData.actualType === '') {
+					uni.$u.toast('请选择实际使用状况');
+					return
+				}
+				if (this.formData.actualDep === '') {
+					uni.$u.toast('请选择实际使用部门');
+					return
+				}
+				if (this.formData.actualUser === '') {
+					uni.$u.toast('请选择实际保管人');
+					return
+				}
+				if (this.formData.actualLocal === '') {
+					uni.$u.toast('请选择实际保存地');
+					return
+				}
+				
+				if (this.formData.assetsEpc === '') {
+					uni.$u.toast('请扫描RFID');
+					return
+				}
+				uni.showLoading({
+					title: '保存中'
+				})
+				uni.$u.api.entryAssets.save(this.formData).then(res => {
+					uni.showToast({
+						title: '保存成功'
+					})
+					uni.hideLoading()
+					uni.navigateBack({
+					    delta: 1
+					});
+				}).catch(err => {
+					console.log(err)
+					uni.hideLoading()
+				})
+			},
+			/**
+			 * 重置
+			 */
+			reset() {
+				this.formData = uni.$u.deepClone(this.resetData)
+				this.tagStatus = null
+			},
+			/**
+			 * 确认部门
+			 * @param {Object} item
+			 */
+			confirmDept(item) {
+				this.deptId = item.deptId
+				this.formData.actualUser = ''
+			}
+		},
+		onUnload() {
+			// #ifdef APP-PLUS
+			uni.$off('rfid')
+			uni.$off('onTrigger')
+			uni.$off('offTrigger')
+			// #endif
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.main-wrap {
+		flex: 1;
+	}
+
+	.main-content {
+		flex: 1;
+	}
+
+	.title-text {
+		line-height: 90rpx;
+		padding: 0 24rpx;
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.bottom-btn-block {
+		padding: 20rpx 30rpx;
+		background-color: #ffffff;
+		border-top: 1px solid #e6e6e6;
+	}
+	.bottom-btn-row {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+	
+	.bottom-btn-row .btn {
+		width: 300rpx;
+	}
+
+	.complete-test {
+		padding: 0;
+		border-top: none;
+	}
+	.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+	
+	.form-item-block:active {
+		opacity: 0.7;
+	}
+	
+	.form-normal-wrap {
+		height: 100rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding-right: 15rpx;
+	}
+	
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 216rpx;
+	}
+	
+	.form-label-text {
+		font-size: 32rpx;
+		color: #646566;
+	}
+	
+	.form-label-required {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #ff0000;
+	}
+	
+	.form-select-box {
+		height: 100rpx;
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	
+	.form-select-input {
+		flex: 1;
+		font-size: 32rpx;
+		color: #323233;
+	}
+	
+	.placeholder-style {
+		color: #c8c9cc;
+	}
+	
+	.placeholder-style.red {
+		color: #ff0000;
+	}
+	
+	.form-select-input.green {
+		color: #5ac725;
+	}
+	
+	.form-select-icon {
+		width: 16rpx;
+		height: 28rpx;
+	}
+	
+	.form-border-bottom {
+		border-bottom: 1px solid #ededed;
+	}
+</style>

@@ -1,0 +1,307 @@
+<template>
+	<view class="main-wrap">
+		<view class="title-box">
+			<image class="title-left" src="/static/images//sy.png" />
+
+			<view class="text-table">
+				<text class="title-cn">Medtronic</text>
+				<view class="title-en">
+					<text class="en-text m-r">Engineering</text>
+					<text class="en-text m-r">the</text>
+					<text class="en-text m-r">extraordinary</text>
+				</view>
+			</view>
+			<image class="title-logo" src="../../static/images/app.png" mode="widthFix" />
+		</view>
+		<!-- 表单模块 -->
+		<view class="form-wrap">
+			<view class="form-item">
+				<input class="form-input" v-model="loginInfo.userName" placeholder="请输入账号" maxlength="30"
+					confirm-type="next" @input="loginInfo.passWord = ''">
+			</view>
+			<view class="form-item">
+				<input class="form-input" v-model="loginInfo.passWord" :type="showPwd ? 'text' : 'password'"
+					placeholder="请输入密码" maxlength="18" confirm-type="done" @confirm="handleLogin">
+				
+			</view>
+		</view>
+		<view class="remember-wrap">
+			<view class="remember-box" @click="loginInfo.remeberPwd = !loginInfo.remeberPwd">
+				<text class="remember-text">忘记密码</text>
+			</view>
+		</view>
+		<view class="btn-con">
+			<u-button :loading="isLoading"  size="large" text="登录" @click="handleLogin" />
+		</view>
+
+	</view>
+</template>
+
+<script>
+// 密码的正则验证
+let passwordReg = /^.{6,18}$/;
+export default {
+  data() {
+    return {
+      showPwd: false, //是否展示密码
+      isLoading: false, //是否正在加载
+	  loginInfo: {
+		 
+	  },
+	  userInfo:{
+		  // RoleID: 12,
+		  // NickName: '张三',
+		  // phone: "15555555"
+	  }
+    }
+  },
+  onReady() {
+	  uni.clearStorage();
+  	const loginInfo = uni.getStorageSync('loginInfo');
+  	if (loginInfo) {
+  	  this.loginInfo = loginInfo
+  	  if (this.loginInfo.remeberPwd) {
+  		  const pwd = this.loginInfo.passWord
+  		  setTimeout(() => {
+  			  this.loginInfo.passWord = pwd
+  		  }, 400)
+  	  }
+  	}
+  },
+  methods: {
+    /**
+     * 处理登录
+     */
+    handleLogin() {
+      if (!this.loginInfo.userName) {
+        uni.$u.toast('请输入用户名');
+        return
+      }
+      if (!passwordReg.test(this.loginInfo.passWord)) {
+        // 对于密码的公共判断方法
+        uni.$u.toast('请输入6-18位的密码');
+        return;
+      }
+      this.login()
+    },
+    /**
+     * 控制密码显示
+     */
+    /**
+     * 调用登录信息
+     */
+    login() {
+      if (this.isLoading) {
+        return
+      }
+      this.isLoading = true
+	  uni.setStorageSync("token", '')
+      uni.$u.api.user.login({
+      	userName: this.loginInfo.userName,
+      	passWord: this.loginInfo.passWord
+      }).then(res => {
+      	uni.setStorageSync("token", res.token)
+      	// uni.setStorageSync("userInfo", res.data)
+		uni.setStorageSync("userInfo", res.data)
+		
+		if (this.loginInfo.remeberPwd) {
+			uni.setStorageSync("loginInfo", this.loginInfo)
+		} else {
+			uni.setStorageSync("loginInfo", {
+				userName: '',
+				passWord: '',
+				remeberPwd: false
+			})
+		}
+		
+		uni.reLaunch({
+		  url: '/pages/home/check/check'
+		})
+       
+      }).catch(err => {
+		  
+		  uni.showModal({
+		  	title: '提示',
+		  	content: '提交失败',
+		  });
+      	this.isLoading = false
+      })
+	  
+	//   uni.setStorageSync("userInfo", this.userInfo)
+	// uni.reLaunch({
+	// 	  url: '/pages/home/check/check'
+	// 	})
+	//   uni.setStorageSync("userInfo", this.userInfo)
+
+	       
+	  
+    }
+  }
+}
+
+</script>
+
+<style scoped lang="scss">
+	.main-wrap {
+		padding: 0 70rpx;
+	}
+
+	.title-box {
+		padding: 50rpx 0 90rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.title-logo {
+		top: 40px;
+		width: 400rpx;
+	}
+
+	.title-left {
+		width: 50px;
+		height: 55px;
+		right: 100px;
+		top: -5px;
+	}
+
+	.title-cn {
+		font-size: 82rpx;
+		font-weight: bold;
+		color: #222222;
+		margin-bottom: 20rpx;
+
+	}
+
+	.text-table {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+
+	.title-en {
+		display: flex;
+		flex-direction: row;
+		margin-bottom: 10rpx;
+	}
+
+	.en-text {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #818181;
+	}
+
+	.en-text.m-r {
+		margin-right: 14rpx;
+	}
+
+	.en-text.c-1 {
+		color: #086ead;
+	}
+
+	.en-text.c-2 {
+		color: #ec5930;
+	}
+
+	.en-text.c-3 {
+		color: #52a6a6;
+	}
+
+	.title-en {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #818181;
+	}
+
+	.form-item {
+		height: 100rpx;
+		border-bottom: 1px solid #e6e6e6;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.form-input {
+		height: 110rpx;
+		font-size: 40rpx;
+		color: #222222;
+		flex: 1;
+		border: 0;
+	}
+
+	.form-input-placeholder {
+		color: #bbbbbb;
+		border: 0;
+	}
+
+	.eye-icon {
+		height: 100rpx;
+		padding: 0 28rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.eye-img {
+		width: 26rpx;
+		height: 18rpx;
+	}
+
+	.navigator-box {
+		display: flex;
+		align-items: center;
+	}
+
+	.navigator-hover {
+		opacity: 0.7;
+	}
+
+	.remember-wrap {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		height: 90rpx;
+	}
+
+	.remember-box {
+		left: 210px;
+		height: 90rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.check-icon {
+		width: 30rpx;
+		height: 30rpx;
+		border-radius: 50%;
+		border: 1px solid #606266;
+		margin-right: 12rpx;
+	}
+
+	.check-icon.hide {
+		border: 0px;
+	}
+
+	.remember-text {
+		font-size: 28rpx;
+		font-weight: 500;
+		color: #222222;
+		position: fixed;
+	    top: 300%;
+		right: 30%;
+	}
+	
+	//  [[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]ll
+	// .btn-con{
+	// 	position: fixed;
+	// 	left: 89%;
+	// 	width: 140%;
+	// 	top: 320%;
+	// }
+	.form-wrap{
+		position: inherit;
+		top: 25%;
+	}
+</style>

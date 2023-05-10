@@ -1,0 +1,188 @@
+<template>
+	<view class="form-item-block">
+		<view class="form-upload-wrap" :class="{'form-border-bottom': borderBottom}">
+			<view class="form-label-box">
+				<text class="form-label-text">{{ label }}</text>
+				<text class="form-label-required" v-if="required">*</text>
+			</view>
+			<view class="form-upload-box">
+				<u-upload :disabled='disabled' :deletable='!disabled' :fileList="fileList" @afterRead="afterRead"
+					@delete="deletePic" :maxCount="maxCount" multiple />
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	/**
+	 * z-form-upload form表单内上传图片组件
+	 * @property {String}			label				选择器的标签文本
+	 * @property {Boolean}			required			是否为必选，默认为false（只控制样式）
+	 * @property {Number}			maxCount			图片上传张数，默认3张
+	 * @property {Boolean}			borderBottom		是否需要下划线，默认为false
+	 * @property {Boolean}			disabled		    是否可以操作，默认为false
+	 */
+	export default {
+		props: {
+			value: {
+				type: [String, Array],
+				default: () => {
+					return []
+				}
+			},
+			maxCount: {
+				type: [Number, String],
+				default: 3
+			},
+			label: {
+				type: String,
+				default: ''
+			},
+			required: {
+				type: Boolean,
+				default: false
+			},
+			borderBottom: {
+				type: Boolean,
+				default: false
+			},
+			disabled: {
+				type: Boolean,
+				default: false
+			},
+		},
+		data() {
+			return {
+				fileList: [],
+			}
+		},
+		watch: {
+			fileList(nVal) {
+				let list = []
+				nVal.forEach(item => {
+					if (item.status === 'success') {
+						list.push(item.url)
+					}
+				})
+				this.$emit('input', list);
+			},
+			value: {
+				immediate: true,
+				handler(nVal) {
+					if (!nVal) {
+						this.fileList = []
+						return
+					}
+					if (nVal && this.fileList.length === 0) {
+						const l = [].concat(nVal)
+						l.forEach(url => {
+							this.fileList.push({
+								status: 'success',
+								message: '',
+								url
+							})
+						})
+					}
+				}
+			}
+		},
+		methods: {
+			/**
+			 * 删除图片
+			 * @param {Object} event
+			 */
+			deletePic(event) {
+				this.fileList.splice(event.index, 1)
+			},
+			/**
+			 * 新增图片
+			 * @param {Object} event
+			 */
+			async afterRead(event) {
+				// 当设置 mutiple 为 true 时, file 为数组格式，否则为对象格式
+				let lists = [].concat(event.file)
+				let fileListLen = this.fileList.length
+				lists.map((item) => {
+					this.fileList.push({
+						...item,
+						status: 'uploading',
+						message: '上传中'
+					})
+				})
+				for (let i = 0; i < lists.length; i++) {
+					const result = await this.uploadFilePromise(lists[i].url)
+					let item = this.fileList[fileListLen] ?? {}
+					this.fileList.splice(fileListLen, 1, Object.assign(item, {
+						status: 'success',
+						message: '',
+						url: result
+					}))
+					fileListLen++
+				}
+			},
+			/**
+			 * 上传图片
+			 * @param {Object} url
+			 */
+			uploadFilePromise(url) {
+				return new Promise((resolve, reject) => {
+					uni.uploadFile({
+						url: 'http://81.68.211.207:5858/api/ESC/App_UploadImg_Eam',
+						filePath: url,
+						name: 'file',
+						success: (res) => {
+							const url = JSON.parse(res.data).url ?? ''
+							if (url) {
+								resolve(url)
+							} else {
+								reject()
+							}
+						},
+					});
+				})
+			},
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+
+	.form-upload-wrap {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		padding: 0 0 20rpx;
+	}
+
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 206rpx;
+	}
+
+	.form-label-text {
+		font-size: 32rpx;
+		color: #646566;
+		line-height: 90rpx;
+	}
+
+	.form-label-required {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #ff0000;
+	}
+
+	.form-upload-box {
+		flex: 1;
+		padding-top: 30rpx;
+	}
+
+	.form-border-bottom {
+		border-bottom: 1px solid #ededed;
+	}
+</style>

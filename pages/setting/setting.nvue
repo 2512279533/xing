@@ -1,0 +1,131 @@
+<template>
+	<view>
+		<text ref="topDom" class="form-title">RFID设置</text>
+		<z-form-select 
+			v-model="settingData.type" 
+			label="工作模式" 
+			placeholder="请选择工作模式" 
+			:options="typeList" 
+			key-name="key"
+			border-bottom
+			@confirm="confirmMode"/>
+		<view class="form-item-block" v-if="settingData.type">
+			<view class="form-normal-wrap">
+				<view class="form-label-box">
+					<text class="form-label-text">设置功率</text>
+				</view>
+				<view class="form-select-box">
+					<u-slider v-model="settingData.power" :min="5" :max="30" show-value />
+				</view>
+			</view>
+		</view>
+		<!-- 底部按钮模块 -->
+		<view class="bottom-btn-block">
+			<u-button text="保存" @click="handleSave" />
+			<u-safe-bottom />
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				typeList: [
+					[{
+							key: '盘点资产'
+						},
+						{
+							key: '资产扫描'
+						},
+						{
+							key: '资产录入'
+						},
+						{
+							key: '资产变更'
+						},
+					]
+				],
+				settingData: {
+					type: '盘点资产',
+					power: 30
+				}
+			}
+		},
+		onLoad() {
+			this.confirmMode()
+		},
+		methods: {
+			/**
+			 * 设置模式
+			 */
+			confirmMode() {
+				const power = uni.getStorageSync(this.settingData.type)
+				this.settingData.power = power ? Number(power) : 30
+			},
+			/**
+			 * 保存
+			 */
+			handleSave() {
+				if (!this.settingData.type) {
+					uni.showToast({
+						title: '请选择工作模式',
+						icon: 'none'
+					})
+				} else {
+					uni.setStorageSync(this.settingData.type, this.settingData.power)
+					uni.showToast({
+						title: '保存成功',
+						icon: 'success'
+					})
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.form-title {
+		padding: 0 24rpx;
+		font-size: 32rpx;
+		font-weight: bold;
+		line-height: 90rpx;
+		color: #222222;
+	}
+	.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+	.form-normal-wrap {
+		height: 100rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding-right: 15rpx;
+	}
+	
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 200rpx;
+	}
+	
+	.form-label-text {
+		font-size: 32rpx;
+		color: #646566;
+	}
+	.form-select-box {
+		height: 80rpx;
+		flex: 1;
+	}
+	.bottom-btn-block {
+		position: fixed;
+		width: 750rpx;
+		left: 0;
+		bottom: 0;
+		padding: 20rpx 30rpx;
+		background-color: #ffffff;
+		border-top: 1px solid #e6e6e6;
+	}
+</style>

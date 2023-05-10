@@ -1,0 +1,109 @@
+<template>
+	<view class="form-item-block">
+		<view class="form-textarea-wrap" :class="{'form-border-bottom': borderBottom}">
+			<view class="form-label-box">
+				<text class="form-label-text">{{ label }}</text>
+				<text class="form-label-required" v-if="required">*</text>
+			</view>	
+			<view class="form-textarea-box">
+				<u--textarea 
+					:value="value"
+					@input="onInput"
+					count 
+					:disabled='disabled'
+					height="240" 
+					confirmType="done"
+					:placeholder="placeholder" 
+					:placeholder-style="{ color: '#c8c9cc' }" 
+				/>
+			</view>	
+		</view>
+	</view>
+</template>
+
+<script>
+	/**
+	 * z-form-textarea form表单内文本域组件
+	 * @property {String}			label				选择器的标签文本
+	 * @property {Boolean}			required			是否为必选，默认为false（只控制样式）
+	 * @property {Boolean}			borderBottom		是否需要下划线，默认为false
+	 * @property {String}			placeholder			占位符内容，（默认 请选择）
+	 * @property {Boolean}			disabled		    是否可以操作，默认为false
+	 */
+	export default {
+		props: {
+			value: {
+				type: String,
+				default: ''
+			},
+			label: {
+				type: String,
+				default: ''
+			},
+			required: {
+				type: Boolean,
+				default: false
+			},
+			borderBottom: {
+				type: Boolean,
+				default: false
+			},
+			placeholder: {
+				type: String,
+				default: '请输入'
+			},
+			disabled: {
+				type: Boolean,
+				default: false
+			},
+		},
+		methods: {
+			/**
+			 * 监听输入
+			 * @param {Object} e
+			 */
+			onInput(val) {
+				this.$emit('input', val)
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+	.form-textarea-wrap {
+		padding: 0 0 20rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+	}
+	
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 216rpx;
+	}
+	.form-label-text {
+		font-size: 32rpx;
+		color: #646566;
+		line-height: 90rpx;
+	}
+	.form-label-required {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #ff0000;
+	}
+		
+	.form-textarea-box {
+		flex: 1;
+		padding-top: 20rpx;
+	}
+	
+	.form-border-bottom {
+		border-bottom: 1px solid #ededed;
+	}
+</style>

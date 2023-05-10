@@ -1,0 +1,432 @@
+<template>
+	
+		<view class="function-list-wrap">
+			<image src="../../static/images/home.png" class="home" @click="back"></image>
+			
+			<template v-for="(item, index) in functionList">
+				<view v-if="item.RoleID === userInfo.RoleID">
+				<view class="function-box" @click="tapFun(item)">
+					<image class="function-icon" :src="item.icon" />
+					<text class="function-label">{{ item.label }}</text>
+				    </view>
+				</view>
+			</template>
+			
+			<!-- <view class="warp">
+					<uni-section title="基础用法" type="line" padding>	
+					<uni-badge @click="mess" class="uni-badge-left-margin" :text=message />
+					</uni-section>
+			        <view>
+						<view >
+						<image @click="home" src="../../static/tab-bar/supervision-selected.png" class="img1"></image>
+			           <text @click="home" class="textA">首页</text>
+					   </view>
+					   <view >
+					   <image @click="mess" src="../../static/tab-bar/news.png" class="img2"></image>
+					   <text @click="mess" class="textB">消息</text>
+					   </view>
+					   <view >
+					   <image @click="mine" src="../../static/tab-bar/mine.png" class="img3"></image>
+					   <text @click="mine" class="textC">我的</text>
+					   </view>
+			        </view>
+			    </view> -->
+				
+		    </view>
+
+		
+
+</template>
+
+<script>
+		import url from "../../common/config.js"
+	const test_module = uni.requireNativePlugin("sz360c_honewell")
+	 import myTabbar from '../../components/my-tabbar/my-tabbar.vue'
+	import permission from '@/util/wa-permission/permission.js'
+	import tarBer from '../../components/tabbar/tabbar.vue' //先把tabBar.vue组件导入
+	export default {
+		components: {
+			
+			url
+		},
+		data() {
+			return {
+			message:null,
+				userInfo: {},
+				homeData: {
+					busy: '10',
+					free: '11',
+					month: '0',
+					total: '2'
+				},
+				functionList: [{
+						label: '发卡绑定',
+						icon: '/static/images/home-fuc-1.png',
+						url: '/pages/tuck-comb/detail/detail',
+						RoleID: 4
+					},
+					{
+						label: '扫描查询',
+						icon: '/static/images/home-fuc-2.png',
+						url: '/pages/scan-module/list/list',
+						RoleID: 4
+					},
+					{
+						label: '领用',
+						icon: '/static/images/home-fuc-4.png',
+						url: '/pages/rece/rece',
+						RoleID: 12
+					},
+					{
+						label: '归还',
+						icon: '/static/images/home-fuc-5.png',
+						url: '/pages/back/back',
+						RoleID: 12
+					},
+					{
+						label: '扫描查询',
+						icon: '/static/images/home-fuc-2.png',
+						url: '/pages/scan-module/list/list',
+						RoleID: 12
+					},{
+						label: '检具盘点',
+						icon: '/static/images/home-fuc-3.png',
+						url: '/pages/check/list/list',
+						RoleID: 10
+					},
+					{
+						label: '扫描查询',
+						icon: '/static/images/home-fuc-2.png',
+						url: '/pages/scan-module/list/list',
+						RoleID: 10
+					},
+					{
+						label: '检具盘点',
+						icon: '/static/images/home-fuc-3.png',
+						url: '/pages/check/list/list',
+						RoleID: 11
+					},
+					{
+						label: '扫描查询',
+						icon: '/static/images/home-fuc-2.png',
+						url: '/pages/scan-module/list/list',
+						RoleID: 11
+					}
+				]
+			};
+		},
+		onShow() {
+			test_module.stopRead()
+			this.getData()
+
+						this.userInfo = uni.getStorageSync("userInfo")
+						console.log("1111111")
+					uni.request({
+						url:url.BASE_URL+"/api/ESC/App_RecipientsTaskList_Eam",
+						method:"POST",
+						data:{
+							'roleId': this.userInfo.RoleID,
+							'userId': this.userInfo.UserID
+						}
+						
+					}).then(res =>{
+						    
+							console.log("312321321321")
+							if(res[1].data.data!=null){
+							uni.setTabBarBadge({ //显示数字
+						  index: 1,
+						  text: res[1].data.data.length.toString()
+						})
+						}
+						if(res[1].data.data==null){
+							uni.removeTabBarBadge({ 
+							  index: 1
+							  
+							})
+						}
+						
+						
+					})
+		},
+		onLoad() {
+			
+			
+			uni.showTabBar()
+			
+			
+			
+			
+			// this.userInfo.RoleID=2;
+			
+			uni.setNavigationBarTitle({
+				title: '首页'
+			})
+			
+			
+			
+		},
+		methods: {
+			back(){
+				uni.reLaunch({
+					url:"/pages/home/check/check"
+				})
+			}
+			,
+			home(){
+				console.log("1111")
+				uni.switchTab({
+					url:"/pages/home/home"
+				})
+				// uni.redirectTo({
+				// 	url:"/pages/home/check/check"
+				// })
+				// uni.$u.route("/pages/home/check/check")
+				// uni.reLaunch({
+				// 		url:"/pages/home/check/check"
+				// })
+			}
+			,
+			mess(){
+				
+				uni.switchTab({
+					url:"/pages/news/news"
+				})
+			}
+			,
+			mine(){
+				uni.switchTab({
+					url:"/pages/mine/mine"
+				})
+			},
+			/**
+			 * 点击功能
+			 * @param {Object} item
+			 */
+			tapFun(item) {
+				uni.$u.route(item.url)
+			},
+			/**
+			 * 获取数据
+			 */
+			getData() {
+				uni.$u.api.user.homeData().then(res => {
+					this.homeData = res.data
+				}).catch(e => {
+					console.log(e)
+				})
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.home-num-wrap {
+		background-color: #ffffff;
+		margin-bottom: 30rpx;
+		
+		padding: 40rpx 0;
+	}
+
+	.top-num {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 20rpx;
+	}
+
+	.top-num .label {
+		margin-bottom: 16rpx;
+	}
+
+	.top-num .label .label-text {
+		font-size: 42rpx;
+		font-weight: bold;
+		color: #000000;
+	}
+
+	.top-num .value {
+		margin-bottom: 12rpx;
+	}
+
+	.top-num .value .value-text {
+		font-size: 42rpx;
+		font-weight: bold;
+		color: #11479b;
+	}
+
+	.other-num {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-around;
+	}
+
+	.other-num-box {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.other-num-box .label {
+		margin-bottom: 12rpx;
+	}
+
+	.other-num-box .label .label-text {
+		font-size: 38rpx;
+		font-weight: 500;
+		color: #000000;
+	}
+
+	.other-num-box .value-text {
+		font-size: 34rpx;
+		color: #555555;
+	}
+
+	.other-num-box .value-text.green {
+		color: #008000 !important;
+	}
+
+	.other-num-box .value-text.orange {
+		color: #FFA500;
+	}
+
+	.function-list-wrap {
+		background-color: #f2f3f5;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		padding: 100rpx 130rpx 0;
+	}
+
+	.function-box {
+		width: 234rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 60rpx;
+	}
+
+	.function-box:active {
+		opacity: 0.7;
+	}
+
+	.function-icon {
+		width: 160rpx;
+		height: 160rpx;
+		margin-bottom: 20rpx;
+	}
+
+	.function-label {
+		font-size: 32rpx;
+		color: #555555;
+	}
+	  .warp {
+	        background-color: #ffffff;
+			position: fixed;
+			width: 1000%;
+			height: 50%;
+			bottom: 0%;
+	    }
+		
+		.img1{
+			position: fixed;
+			bottom: 20%;
+			left: 40%;
+			width: 25%;
+			height: 25%;
+		}
+		.img2{
+		position: fixed;
+		bottom: 20%;
+		left: 147%;
+		width: 25%;
+		height: 25%;
+		}
+		.img3{
+			position: fixed;
+			bottom: 20%;
+			left: 254%;
+			width: 25%;
+			height: 25%;
+		}
+		.textA{
+			font-size: 11%;
+			color: #11479b;
+			position: fixed;
+			bottom: 5%;
+			left: 42%;
+		}
+		.textB{
+			font-size: 11%;
+			
+			position: fixed;
+			bottom: 5%;
+			left: 149%;
+		}
+		.textC{
+			font-size: 11%;
+			
+			position: fixed;
+			bottom: 5%;
+			left: 256%;
+		}
+		.uni-badge {
+				margin-left: 20rpx;
+			}
+		
+			
+			.example-body {
+				flex-direction: row;
+				justify-content: flex-start;
+			}
+		
+			.uni-badge-left-margin {
+				position:fixed;
+				bottom: 0%;
+				right: 157%;
+				margin-left: 10px;
+			}
+		
+			.uni-badge-absolute {
+				margin-left: 40px;
+			}
+		
+			.box {
+				width: 40px;
+				height: 40px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+				background-color: #DCDFE6;
+				color: #fff;
+				font-size: 12px;
+			}
+		
+			.box-text {
+				text-align: center;
+				color: #fff;
+				font-size: 12px;
+			}
+			.home{
+				width: 60rpx;
+				height: 60rpx;
+				position: fixed;
+				top:20rpx;
+				left: 40rpx;
+			}
+		
+</style>
+
+<style>
+
+	page {
+		position: fixed;
+		background-color: #ffffff;
+	}
+
+</style>

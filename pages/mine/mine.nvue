@@ -1,0 +1,334 @@
+<template>
+	<view class="main-wrap">
+		<u-status-bar />
+		<image class="mine-bg" :style="{height: bgHeight}" src="/static/images/mine-bg.png" mode="aspectFill" />
+		<view class="user-info-block">
+			<!-- <u-avatar size="120" :text="userInfo.NickName[0]" font-size="60" randomBgColor /> -->
+			<u-avatar size="120" :text="userInfo.NickName[0]" font-size="60" />
+			<view class="user-info-wrap">
+				<text class="user-name">{{userInfo.NickName}}</text>
+				
+			</view>
+		</view>
+		<view class="function-block">
+			<template v-for="(item, index) in functionList">
+				<view class="function-wrap" :key="index">
+					<view class="function-title">
+						<text class="function-title-text">常用功能</text>
+					</view>
+					<template v-for="(fuc, fucIndex) in item.list">
+						<view class="function-box" :key="fucIndex" @click="tapFuc(fuc)">
+							<view class="function-left">
+								<image class="function-icon" :src="fuc.icon" mode="widthFix" />
+								<text class="function-label">{{ fuc.label }}</text>
+							</view>
+							<image class="function-arrow-right" src="/static/images/arrow-right-grey.png"
+								mode="widthFix" />
+						</view>
+					</template>
+				</view>
+			</template>
+	<view class="function-title">
+		<text class="function-title-text">常用功能</text>
+	</view>
+	<view class="function-box">
+		<view class="function-left" >
+			<image class="function-icon" :src="'/static/images/mine-fuc-1.png'" mode="widthFix" />
+			<!-- <text class="function-label">工作模式</text> -->
+			<my-form-select  
+			  label="工作模式" 
+			  placeholder="" 
+			  :options="state"
+			key-name="key"
+			style="width: 90vw;"
+			@confirm="confirmMode"
+			
+			/>
+		</view>
+		<image class="function-arrow-right" src="/static/images/arrow-right-grey.png"
+			mode="widthFix" />
+	</view>
+	<view class="function-box">
+		<image class="function-icon2" :src="'/static/images/ld.png'" mode="widthFix" />
+				<view class="form-select-box">
+				<slider value="15" max="30" min="5" @change="sliderChange" activeColor="#5555ff" backgroundColor="#9ae5e5" block-color="#5555ff" block-size="20" show-value/>
+				</view>
+	
+	</view>
+	
+	
+		</view>
+		<view class="bottom-block">
+			<u-button text="退出登录" @click="signOut" />
+<!-- 			<view class="version-code">
+				<text class="version-code-text">版本号 {{ currentVersion }}</text>
+			</view> -->
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				userInfo: {},
+				bgHeight: uni.$u.addUnit(uni.$u.sys().statusBarHeight * 2 + 262, 'rpx'),
+				currentVersion: '',
+				
+				functionList: [{
+					title: '常用功能',
+					list: [{
+						label: '个人信息',
+						icon: '/static/images/mine-fuc-1.png',
+						url: '/pages/user-info/user-info'
+					},{
+						label: '修改密码',
+						icon: '/static/images/mine-fuc-2.png',
+						url: '/pages/change-password/change-password'
+					}]
+				}],
+				
+				state:
+				[
+					[{
+							key: '发卡绑定'
+						},
+						{
+							key: '领用/归还'
+						},
+						{
+							key: '盘点'
+						},
+						]
+					],
+				phone: '', //手机号
+				nickName: '', //姓名
+			};
+		},
+		onLoad() {
+			
+			
+			this.userInfo = uni.getStorageSync("userInfo")
+			console.log(this.userInfo)
+			// #ifdef APP-PLUS
+			this.getVersionCode()
+			// #endif
+		},
+		methods: {
+			/**
+			 * 点击功能
+			 */
+			confirmMode(e){
+				console.log(e.key)
+				
+				
+			}
+			
+			
+			,
+			sliderChange(e){
+				// 设置保存的功率，默认30
+				console.log(e.detail.value)
+				
+				// #ifdef APP-PLUS
+				const power=e.detail.value
+				this.$emit('setPower', power)
+				// #endif
+				
+				
+				
+			},
+			touch(e){
+				
+			},
+			tapFuc(fuc) {
+				uni.$u.route(fuc)
+			},
+			/**
+			 * 获取版本号
+			 */
+			getVersionCode() {
+				plus.runtime.getProperty(plus.runtime.appid, info => {
+					this.currentVersion = info.version
+				})
+			},
+			/**
+			 * 登出
+			 */
+			signOut() {
+				uni.showModal({
+					title: '登出确认',
+					content: '是否确认退出登录',
+					confirmColor: '#11479b',
+					success: res => {
+						if (res.confirm) {
+							uni.clearStorage()
+							uni.reLaunch({							
+								url: '/pages/login/login'
+							})
+						}
+					}
+				});
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.main-wrap {
+		position: relative;
+	}
+.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+	.form-normal-wrap {
+		height: 100rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding-right: 15rpx;
+	}
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 200rpx;
+	}
+	.form-select-box {
+		height: 77rpx;
+		flex: 1;
+	}
+	.mine-bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 750rpx;
+		z-index: 1;
+	}
+
+	.user-info-block {
+		position: relative;
+		z-index: 2;
+		height: 262rpx;
+		padding: 0 40rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.user-info-wrap {
+		
+		position: fixed;
+		top: 70%;
+		left: 75%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.user-name {
+		font-size: 46rpx;
+		font-weight: bold;
+		color: #ffffff;
+		margin-bottom: 10rpx;
+	}
+
+	.user-phone {
+		font-size: 32rpx;
+		font-weight: 500;
+		color: #ffffff;
+	}
+
+	.user-role {
+		font-size: 28rpx;
+		color: #ffffff;
+		line-height: 28rpx;
+	}
+
+	.function-block {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.function-title {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 0 32rpx;
+		height: 96rpx;
+	}
+
+	.function-title-text {
+		font-size: 36rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.function-box {
+		height: 100rpx;
+		background-color: #ffffff;
+		padding: 0 30rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		transition-property: background-color;
+		transition-duration: 0.2s;
+	}
+
+	.function-box:active {
+		background-color: #f8f8f8;
+	}
+
+	.function-left {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.function-icon {
+		width: 33rpx;
+	}
+	.function-icon2 {
+		width: 44rpx;
+	}
+
+	.function-label {
+		font-size: 32rpx;
+		color: #222222;
+		padding-left: 24rpx;
+	}
+
+	.function-arrow-right {
+		width: 14rpx;
+	}
+
+	.bottom-block {
+		width: 750rpx;
+		position: fixed;
+		bottom: 40rpx;
+		padding: 0 55rpx;
+	}
+
+	.version-code {
+		margin-top: 38rpx;
+	}
+
+	.version-code-text {
+		font-size: 28rpx;
+		font-weight: 500;
+		color: #969799;
+		text-align: center;
+	}
+
+</style>
+
+<style>
+	/* #ifndef APP-NVUE */
+	page {
+		background-color: #f2f3f5;
+	}
+
+	/* #endif */
+</style>

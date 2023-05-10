@@ -1,0 +1,897 @@
+<template>
+	<view class="main-wrap">
+		<view v-if="this.cases==12">
+			<u-tabs :list="tabs1" @click="selectTab" :current="current" />
+		</view>
+		<view v-if="cases==10">
+			<u-tabs :list="tabs2" @click="selectTab" :current="current" />
+		</view>
+
+		<!-- <z-list ref="list" @refresh="getList" class="list-block" :list="list"  :init="false"  scroll-y> -->
+		<z-list ref="list" :list="list" class="list-block" :init="false" is-scan @refresh="getList">
+			<!-- 分页列表模块 -->
+			<template v-if="list.length > 0">
+				<cell v-for="(item, index) in list" :key="index">
+					<view v-if="item.Status==0">
+						<!-- 盘点任务item -->
+						<view class="list-box" @click="viewDetail(item)">
+							<view class="list-info-block">
+								<view class="list-info-wrap">
+									<view class="list-head-block">
+										<text class="shop-name">单号：{{item.BillNo}}</text>
+									</view>
+									<view class="list-info-block">
+										<view class="list-info-wrap">
+											<view class="info-row">
+												<text class="info-label ">检具数量</text>
+												<text class="shop-name ">{{item.AssetsCount}}</text>
+											</view>
+											<view class="info-row">
+												<text class="info-label">领用机台</text>
+												<text class="shop-name">{{item.DeptCode}}</text>
+											</view>
+											<view class="info-row">
+												<text class="info-label">领用区域</text>
+												<text class="shop-name">{{item.AreaName}}</text>
+											</view>
+
+										</view>
+										<image class="right-icon" src="/static/images/arrow-right-black.png"
+											mode="widthFix" />
+									</view>
+								</view>
+							</view>
+						</view>
+
+					</view>
+
+				</cell>
+			</template>
+		</z-list>
+
+		<view v-if="this.current==1">
+
+			<z-list ref="list" @refresh="refresh" class="list-block" :back="back" :init="false" is-scan>
+				<!-- <z-list ref="list" class="list-block"  :init="false" is-scan @refresh="getBack" is-scan> -->
+				<!-- 分页列表模块 -->
+				<template v-if="back.length > 0">
+					<cell v-for="(item, index) in back" :key="index">
+						<!-- 盘点任务item -->
+						<view class="list-box" @click="viewDetails(item)">
+							<view class="list-info-block">
+								<view class="list-info-wrap">
+									<view class="list-head-block">
+										<text class="shop-name">单号：{{item.BillNo}}</text>
+									</view>
+									<view class="list-info-block">
+										<view class="list-info-wrap">
+											<view class="info-row">
+												<text class="info-label ">检具数量</text>
+												<text class="shop-name ">{{item.AssetsCount}}</text>
+											</view>
+											<view class="info-row">
+												<text class="info-label">领用机台</text>
+												<text class="shop-name">{{item.DeptId}}</text>
+											</view>
+											<view class="info-row">
+												<text class="info-label">领用区域</text>
+												<text class="shop-name">{{item.AreaName}}</text>
+											</view>
+
+										</view>
+										<image class="right-icon" src="/static/images/arrow-right-black.png"
+											mode="widthFix" />
+									</view>
+								</view>
+							</view>
+						</view>
+
+					</cell>
+				</template>
+			</z-list>
+
+
+
+
+
+		</view>
+		<!-- 	<uni-section type="line" padding class="bottom-badge">
+			<view class="example-body">
+				<uni-badge :text=news class="uni-badge-left-margin"  />
+			</view>
+		</uni-section> -->
+	</view>
+
+
+
+
+
+
+</template>
+
+<script>
+	import url from "../../common/config.js"
+	import ZList from '@/components/z-list/z-list.nvue'
+
+	export default {
+		components: {
+			url,
+			ZList
+		},
+		data() {
+			return {
+				tabs1: [{
+						name: '待 领 用'
+					},
+					// {
+					// 	name: '待 归 还'
+					// }
+
+				],
+				tabs2: [{
+					name: '待 领 用'
+				}],
+				list: [],
+				net: "",
+				back: [],
+				cases: 0,
+				current: 0,
+				showFilter: false,
+				keyword: '',
+				news: 0,
+			};
+		},
+
+		onPullDownRefresh() {
+
+			this.getList()
+			this.isHaveNetwork()
+			//调用接口完成后添加下方函数,停止当前页面下拉刷新。
+			uni.stopPullDownRefresh()
+			if(this.net=="none"){
+				uni.$u.toast('刷新失败，请检查网络');
+			}else{
+				uni.$u.toast('刷新成功');
+			}
+			
+		},
+		onShow() {
+			this.isHaveNetwork()
+					
+			this.getList() //获取待领用
+
+			uni.request({
+				url: url.BASE_URL+"/api/ESC/App_RecipientsTaskList_Eam",
+				method: "POST",
+				data: {
+					'roleId': this.userInfo.RoleID,
+					'userId': this.userInfo.UserID
+				}
+
+			}).then(res => {
+
+				console.log("312321321321")
+				if (res[1].data.data.length > 0) {
+
+					if(res[1].data.data!=null){
+						uni.setTabBarBadge({ //显示数字
+					  index: 1,
+					  text: res[1].data.data.length.toString()
+					})
+					}
+					if(res[1].data.data==null){
+						uni.removeTabBarBadge({ 
+						  index: 1
+						  
+						})
+					}
+				}
+			})
+		},
+		onLoad() {
+			this.userInfo = uni.getStorageSync("userInfo")
+			// alert(this.userInfo.RoleID)
+			this.getList() //获取待领用
+			this.cases = this.userInfo.RoleID
+
+
+		},
+	
+		// mounted() {
+
+		// 	// this.getBack() //获取待归还
+		// },
+
+		methods: {
+
+			isHaveNetwork() {
+				uni.getNetworkType({
+					success: (res) => {
+						if (res.networkType == 'none') {
+							uni.showToast({
+								title: '网络异常',
+								icon: "error"
+							});
+							this.net = "none"
+						} else {
+							this.net = "b"
+							console.log("有网") //有网
+						}
+					}
+				});
+			},
+
+
+
+
+			refresh() {
+				this.list = []
+				this.disabled = true
+			},
+
+			/**
+			 * 选择tab
+			 */
+			selectTab(item) {
+				this.current = item.index
+				this.getList()
+				// this.getBack()
+			},
+			selectTab2(item) {
+				this.current = item.index
+				this.getList()
+				// this.getBack()
+			},
+
+			/**
+			 * 获取列表
+			 */
+			getList() {
+				if(this.net=="none"){
+						uni.showToast({
+						title: '网络不稳定',
+						icon: 'error'
+					});
+					return
+				}
+				let that = this
+				uni.request({
+
+					url: url.BASE_URL+'/api/ESC/App_RecipientsTaskList_Eam',
+					method: 'POST',
+					data: {
+						roleId: this.userInfo.RoleID,
+						userId: this.userInfo.UserID,
+						// roleId: 10,
+						// userId: 22,
+
+					},
+					success: (res) => {
+						console.log("获取列表", res)
+						if (res.data.code == 0) {
+							that.list = []
+							that.news = that.list.length
+
+						} else if (res.data.code == 200) {
+
+							that.list = res.data.data
+							that.news = that.list.length
+						}
+
+
+					}
+				});
+			},
+
+			getBack() {
+				let that = this
+				uni.request({
+					url: url.BASE_URL+'/api/ESC/App_ReturnTaskList_Eam',
+					method: 'POST',
+					data: {
+						roleId: this.userInfo.RoleId,
+						userId: this.userInfo.UserId,
+						// roleId: 12,
+						// userId: 24,
+
+					},
+					success: (res) => {
+						// console.log(res.data.data)
+						// this.back = res.data.data
+						if (res.data.code == 0) {
+							that.back = []
+							that.news = that.list.length
+
+						} else if (res.data.code == 200) {
+
+							that.back = res.data.data
+							that.news = that.back.length
+						}
+					}
+				});
+
+			},
+			/**
+			 * 查看详情
+			 */
+			viewDetail(item) {
+				// alert(item.DeptId)
+				uni.$u.throttle(() => {
+					uni.$u.route({
+						url: '/pages/receive-line/receive',
+						params: item
+					})
+
+				}, 500)
+			},
+			// onPullDownRefresh() {
+
+			// 	uni.stopPullDownRefresh()
+
+			// 	this.list = []
+			// 	uni.$u.toast('刷新成功');
+			// },
+			/**
+			 * 查看详情
+			 */
+			viewDetails(item) {
+				// alert(item.DeptId)
+				uni.$u.throttle(() => {
+					uni.$u.route({
+						url: '/pages/receive-line/back',
+						params: item
+					})
+
+				}, 500)
+			},
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.bottom-badge {
+		position: absolute;
+		left: 140px;
+		top: 470px;
+	}
+
+	.example-body {
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+
+	.uni-badge-left-margin {
+		margin-left: 10px;
+	}
+
+	.main-wrap {
+		flex: 1;
+	}
+
+	.search-block {
+		height: 130rpx;
+		background-color: #11479b;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+	}
+
+	.page-info-block {
+		padding: 0 36rpx;
+		height: 74rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.page-info-text {
+		font-size: 28rpx;
+		color: #222222;
+	}
+
+
+	.list-block {
+		height: calc(120% - 516rpx);
+
+		&.read-only {
+			height: calc(120% - 386rpx);
+		}
+	}
+
+	.list-box {
+		background-color: #ffffff;
+		border-radius: 8rpx;
+		display: flex;
+		flex-direction: column;
+		padding: 0 20rpx;
+		margin: 0 30rpx 20rpx;
+	}
+
+	.list-box:active {
+		opacity: 0.7;
+	}
+
+	.list-head-block {
+		height: 78rpx;
+		border-bottom: 1px solid #ebedf0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.shop-name {
+		font-size: 34rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+
+	.list-status {
+		font-size: 30rpx;
+		color: #00a34f;
+	}
+
+	.status-0 {
+		color: #faab0c;
+	}
+
+	.status-1 {
+		color: #11479b;
+	}
+
+	.status-2 {
+		color: #00a34f;
+	}
+
+	.list-info-block {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 24rpx 10rpx 0 0;
+	}
+
+	.list-info-wrap {
+		flex: 1;
+	}
+
+	.right-icon {
+		width: 16rpx;
+		height: 28rpx;
+	}
+
+	.info-row {
+		margin-bottom: 24rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.info-label {
+		width: 190rpx;
+		font-size: 30rpx;
+		color: #969799;
+	}
+
+	.info-value {
+		font-size: 30rpx;
+		color: #323233;
+	}
+
+	.bottom-btn-block {
+		padding: 20rpx 30rpx;
+		background-color: #ffffff;
+		border-top: 1px solid #e6e6e6;
+	}
+
+	.main-contron {
+		padding-top: 20px;
+	}
+
+	.qx {
+		position: absolute;
+		right: 20px;
+		top: 20rpx;
+		font-size: 28rpx;
+		color: #222222;
+	}
+
+	.logo {
+		height: 200rpx;
+		width: 200rpx;
+		margin-top: 200rpx;
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 50rpx;
+	}
+
+	.main-wrap {
+
+		height: calc(100vh - var(--window-top));
+
+
+		.scan-top-info {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			padding: 24rpx 24rpx 30rpx;
+		}
+
+		.top-info-text {
+			font-size: 26rpx;
+			color: #969799;
+		}
+
+		.top-info-number {
+			font-size: 26rpx;
+			color: #969799;
+			background-color: #ffffff;
+		}
+
+
+
+		.list-box {
+			background-color: #ffffff;
+			border-radius: 8rpx;
+			display: flex;
+			flex-direction: column;
+			padding: 0 20rpx;
+			margin: 0 30rpx 20rpx;
+		}
+
+		.list-box2 {
+			background-color: #db999a;
+			border-radius: 8rpx;
+			display: flex;
+			flex-direction: column;
+			padding: 0 20rpx;
+			margin: 0 30rpx 20rpx;
+		}
+
+		.list-box:active {
+			opacity: 0.7;
+		}
+
+		.list-head-block {
+			height: 78rpx;
+			border-bottom: 1px solid #ebedf0;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.shop-name {
+			font-size: 34rpx;
+			font-weight: bold;
+			color: #222222;
+		}
+
+		.list-status {
+			font-size: 30rpx;
+			color: #00a34f;
+		}
+
+		.status-0 {
+			color: #faab0c;
+		}
+
+		.status-1 {
+			color: #11479b;
+		}
+
+		.status-2 {
+			color: #00a34f;
+		}
+
+		.list-info-block {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			padding: 24rpx 10rpx 0 0;
+		}
+
+		.list-info-wrap {
+			flex: 1;
+		}
+
+		.right-icon {
+			width: 16rpx;
+			height: 28rpx;
+		}
+
+		.info-row {
+			margin-bottom: 24rpx;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.info-line {
+			height: 78rpx;
+			width: 250px;
+
+			border-bottom: 2px dotted #ebedf0;
+			margin-bottom: 24rpx;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.info-label {
+			width: 190rpx;
+			font-size: 30rpx;
+			color: #969799;
+		}
+
+		.info-value {
+			font-size: 30rpx;
+			color: #323233;
+		}
+
+
+
+		.scan-info-wrap {
+			height: 276rpx;
+			background-color: #ffffff;
+			padding-bottom: 32rpx;
+
+			.scan-top-info {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+				padding: 24rpx 24rpx 30rpx;
+
+
+			}
+
+			.top-info-text {
+				font-size: 26rpx;
+				color: #969799;
+			}
+
+			.main-info-wrap {
+				display: flex;
+				flex-direction: row;
+				align-items: flex-end;
+				justify-content: space-between;
+
+				.info-box {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+
+					.value {
+						font-size: 28rpx;
+						margin-bottom: 12rpx;
+
+						&.blue {
+							color: #11479b;
+						}
+
+						&.red {
+							color: #ee0a24;
+						}
+					}
+
+					.label {
+						font-size: 32rpx;
+						font-weight: bold;
+
+						&.blue {
+							color: #11479b;
+						}
+
+						&.red {
+							color: #ee0a24;
+						}
+					}
+				}
+			}
+		}
+
+		.table-header {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			background-color: #ffffff;
+
+			.table-box {
+				.table-text {
+					font-weight: bold;
+					color: #11479b !important;
+				}
+
+				image {
+					width: 36rpx;
+					height: auto;
+				}
+			}
+		}
+
+		.table-row {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			background-color: #ffffff;
+			border-bottom: 1px solid #f2f3f5;
+		}
+
+		.table-box {
+			flex: 0.3;
+			background-color: #ffffff;
+			height: 80rpx;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			font-size: 32rpx;
+			color: #222222;
+
+			&.status {
+				color: #7b7e7e;
+			}
+
+			&.middle {
+				flex: 0.4;
+			}
+
+			&.green {
+				color: #339f44;
+			}
+
+			&.red {
+				color: #ee0a24
+			}
+		}
+
+		.list-block {
+			height: calc(120% - 516rpx);
+
+			&.read-only {
+				height: calc(120% - 386rpx);
+			}
+		}
+
+		.tips-block {
+			position: fixed;
+			top: 15%;
+			left: 50%;
+			transform: translateX(-50%);
+			padding: 60rpx 40rpx;
+			background-color: #ffffff;
+			color: #222222;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			border-radius: 30rpx;
+
+			view {
+				color: #FFFFFF;
+				font-weight: bold;
+				line-height: 70rpx;
+			}
+
+			.tips-title {
+				font-size: 60rpx;
+				white-space: nowrap;
+				margin-bottom: 20rpx;
+			}
+
+			.tips-sub-title {
+				font-size: 48rpx;
+				margin-bottom: 20rpx;
+			}
+
+			.tips-text {
+				font-size: 42rpx;
+				width: 100%;
+				margin-bottom: 10rpx;
+			}
+		}
+
+		.approval-block {
+			position: absolute;
+
+			.approval-popup-box {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 40rpx 0;
+
+				.approval-popup-title {
+					font-size: 52rpx;
+					font-weight: bold;
+					color: #222222;
+					margin-bottom: 80rpx;
+
+				}
+
+				.approval-select-box {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					margin-bottom: 36rpx;
+
+					.label {
+						width: 220rpx;
+						font-size: 36rpx;
+						font-weight: bold;
+						color: #222222;
+					}
+
+					.value {
+						border-radius: 8rpx;
+						height: 60rpx;
+						width: 300rpx;
+						background-color: #eff0f1;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						padding: 0 24rpx 0 38rpx;
+					}
+				}
+
+				.btn-row-wrap {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: space-between;
+					position: relative;
+					width: 100%;
+					padding: 40rpx 114rpx 10rpx;
+
+					.btn {
+						width: 200rpx;
+					}
+				}
+			}
+
+		}
+
+	}
+
+	.text-area {
+		display: flex;
+		justify-content: center;
+	}
+
+	.title {
+		font-size: 36rpx;
+		color: #8f8f94;
+	}
+
+	.bottom-block {
+		width: 500rpx;
+		height: 7%;
+		position: absolute;
+		right: 50px;
+		bottom: 80rpx;
+		padding: 50rpx 55rpx;
+
+
+	}
+
+	.flush {
+		width: 40rpx;
+		height: 40rpx;
+		position: fixed;
+		right: 220rpx;
+		top: 28rpx;
+	}
+</style>
+
+<style>
+	/* #ifndef APP-NVUE */
+	page {
+		background-color: #f2f3f5;
+	}
+
+	/* #endif */
+</style>

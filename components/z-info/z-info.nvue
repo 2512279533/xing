@@ -1,0 +1,37 @@
+<template>
+	<view class="z-info-block">
+		<text class="title-text">基础信息</text>
+		<view class="info-block">
+			<slot />
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			title: {
+				type: String,
+				default: ''
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.z-info-block {
+		display: flex;
+		flex-direction: column;
+	}
+	.title-text {
+		line-height: 90rpx;
+		padding: 0 24rpx;
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #222222;
+	}
+	.info-block {
+		background-color: #ffffff;
+		padding: 20rpx 24rpx;
+	}
+</style>

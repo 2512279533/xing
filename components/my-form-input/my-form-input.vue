@@ -1,0 +1,154 @@
+<template>
+	<view class="form-item-block">
+		<view class="form-normal-wrap" :class="{'form-border-bottom': borderBottom}">
+			<view class="form-label-box">
+				<text class="form-label-text">{{ label }}</text>
+				<text class="form-label-required" v-if="required">*</text>
+			</view>
+			<view class="form-input-box" :class="{'change-bg': needChangeColor && originalValue !== value}">
+				<input :value="value" class="form-input" :type="type" placeholder-class="placeholder-style"
+					:placeholder="placeholder" :disabled="readonly" :maxlength="maxLength" @input="handleInput" @blur="inputBlur" @confirm="doSearch">
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	/**
+	 * z-form-input form表单内输入组件
+	 * @property {String}			label				输入器的标签文本
+	 * @property {Boolean}			required			是否为必选，默认为false（只控制样式）
+	 * @property {Boolean}			borderBottom		是否需要下划线，默认为false
+	 * @property {String}			placeholder			占位符内容，（默认 请输入）
+	 * @property {String}			type				input类型
+	 */
+	export default {
+		props: {
+			label: {
+				type: String,
+				default: ''
+			},
+			required: {
+				type: Boolean,
+				default: false
+			},
+			borderBottom: {
+				type: Boolean,
+				default: false
+			},
+			placeholder: {
+				type: String,
+				default: '请输入'
+			},
+			type: {
+				type: String,
+				default: 'text'
+			},
+			maxLength: {
+				type: [String, Number],
+				default: '30'
+			},
+			readonly: {
+				type: Boolean,
+				default: false
+			},
+			value: {
+				type: [String, Number],
+				default: ''
+			},
+			originalValue: {
+				type: [String, Number],
+				default: ''
+			},
+			needChangeColor: {
+				type: Boolean,
+				default: false
+			}
+		},
+		methods: {
+			/**
+			 * 处理筛选
+			 */
+			handleSelect() {
+				this.show = true
+			},
+			/**
+			 * 处理输入
+			 */
+			handleInput(e) {
+				this.$emit('input', e.detail.value)
+			},
+			
+			inputBlur(){
+				this.$emit('blur',"dsa")
+			}
+			,
+			doSearch(){
+				this.$emit('blur',"dsa")
+			}
+			
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+
+	.form-normal-wrap {
+		height: 100rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding-right: 15rpx;
+	}
+
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 200rpx;
+	}
+
+	.form-label-text {
+		font-size: 32rpx;
+		color: #101010;
+		font-weight: bold;
+	}
+
+	.form-label-required {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #ff0000;
+	}
+
+	.form-input-box {
+		height: 80rpx;
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 0 16rpx;
+	}
+	
+	.change-bg {
+		background-color: #ffdf7f;
+		border-radius: 10rpx;
+	}
+
+	.form-input {
+		flex: 1;
+		font-size: 32rpx;
+		color: #4f4f4f;
+	}
+
+	.placeholder-style {
+		color: #c8c9cc;
+	}
+
+	.form-border-bottom {
+		border-bottom: 1px solid #ededed;
+	}
+</style>

@@ -1,0 +1,173 @@
+<template>
+	<view class="form-item-block">
+		<view class="form-normal-wrap" :class="{
+				'form-border-bottom': borderBottom
+				
+			}" @click="getLocation('click')">
+			<view class="form-label-box">
+				<text class="form-label-text">{{ label }}</text>
+				<text class="form-label-required" v-if="required">*</text>
+			</view>
+			<view class="form-label-box flex1">
+				<text class="form-location-text"
+					:class="{'placeholder-style': !locationText}">{{ locationText ? locationText : placeholder }}</text>
+				<view class="form-location-icon-wrap">
+					<image class="form-location-icon" src="/static/images/location-black.png" />
+				</view>
+			</view>
+
+		</view>
+	</view>
+</template>
+
+<script>
+	/**
+	 * z-form-select form表单内选择组件
+	 * @property {String}			label				选择器的标签文本
+	 * @property {Boolean}			required			是否为必选，默认为false（只控制样式）
+	 * @property {Boolean}			borderBottom		是否需要下划线，默认为false
+	 * @property {String}			placeholder			占位符
+	 * @property {Boolean}			disabled		    是否可以操作，默认为false
+	 */
+	export default {
+		props: {
+			label: {
+				type: String,
+				default: ''
+			},
+			borderBottom: {
+				type: Boolean,
+				default: false
+			},
+			required: {
+				type: Boolean,
+				default: false
+			},
+			placeholder: {
+				type: String,
+				default: '请开启定位权限'
+			},
+			disabled: {
+				type: Boolean,
+				default: false
+			},
+		},
+		data() {
+			return {
+				locationText: '',
+				longitude: '', //经纬度
+				latitude: '', //经纬度
+			}
+		},
+		methods: {
+			getLocation(type) {
+				if (!this.disabled) {
+					getApp().openLocation(type, res => {
+						this.longitude = res.longitude;
+						this.latitude = res.latitude;
+						this.getCityCode()
+					})
+				}
+			},
+			// 获取详细地址
+			getCityCode() {
+				uni.request({
+					url: 'https://apis.map.qq.com/ws/geocoder/v1/',
+					data: {
+						location: `${this.latitude},${this.longitude}`, // lat<纬度>,lng<经度>
+						key: 'T6TBZ-S4TEJ-R3DFY-KMRJN-FRE4K-34FFY',
+					},
+					success: (res) => {
+						let data = res.data.result;
+						this.locationText = data.address_component.city + data.formatted_addresses.recommend
+						this.$emit('input', this.locationText)
+					}
+				});
+			},
+			/**
+			 * 预览图片
+			 * @param {Object} img
+			 */
+			onPreviewImage(img) {
+				uni.previewImage({
+					// 先filter找出为图片的item，再返回filter结果中的图片url
+					urls: this.imgList,
+					current: img,
+					fail() {
+						uni.$u.toast('预览图片失败')
+					},
+				});
+			},
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.form-item-block {
+		flex: 1;
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+
+	.form-normal-wrap {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		flex: 1;
+	}
+
+	.form-image-wrap>.form-label-text {
+		width: 206rpx;
+	}
+
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 206rpx;
+	}
+	.flex1{
+		flex: 1;
+	}
+	.form-label-text {
+		font-size: 32rpx;
+		color: #646566;
+		line-height: 90rpx;
+	}
+
+	.form-label-required {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #ff0000;
+	}
+
+	.form-location-text {
+		flex: 1;
+		padding: 27rpx 0;
+		font-size: 32rpx;
+		line-height: 36rpx;
+		color: #323233;
+	}
+
+	.form-location-icon-wrap {
+		height: 90rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		padding: 0 14rpx;
+	}
+
+	.form-location-icon {
+		width: 24rpx;
+		height: 32rpx;
+	}
+
+	.placeholder-style {
+		color: #c8c9cc;
+	}
+
+	.form-border-bottom {
+		border-bottom: 1px solid #ededed;
+	}
+</style>

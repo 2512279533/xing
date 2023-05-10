@@ -1,0 +1,159 @@
+<template>
+	<view class="form-item-block">
+		<view class="form-normal-wrap" :class="{'form-border-bottom': borderBottom}">
+			<view class="form-label-box">
+				<text class="form-label-text">{{ label }}</text>
+				<text class="form-label-required" v-if="required">*</text>
+			</view>
+			<view class="form-radio-box">
+				<template v-for="(item, index) in options">
+					<view class="form-radio-item" :class="{'form-radio-check': item.value === value, 'change-bg': needChangeColor && originalValue !== value}" :key="index"
+						@click="checkRadio(item)">
+						<text class="form-radio-text">{{ item.label }}</text>
+					</view>
+				</template>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	/**
+	 * z-form-radio form表单内单选组件
+	 * @property {String}			label				选择器的标签文本
+	 * @property {Boolean}			required			是否为必选，默认为false（只控制样式）
+	 * @property {Boolean}			borderBottom		是否需要下划线，默认为false
+	 * @property {Boolean}			disabled		    是否可以操作，默认为false
+	 */
+	export default {
+		props: {
+			value: {
+				type: [String, Number],
+				default: ''
+			},
+			label: {
+				type: String,
+				default: ''
+			},
+			required: {
+				type: Boolean,
+				default: false
+			},
+			options: {
+				type: Array,
+				default: () => {
+					return []
+				}
+			},
+			borderBottom: {
+				type: Boolean,
+				default: false
+			},
+			readonly: {
+				type: Boolean,
+				default: false
+			},
+			originalValue: {
+				type: [String, Number],
+				default: ''
+			},
+			needChangeColor: {
+				type: Boolean,
+				default: false
+			}
+		},
+		methods: {
+			/**
+			 * 单选
+			 */
+			checkRadio(item) {
+				if (!this.readonly) {
+					this.$emit('input', item.value)
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped lang="scss">
+	.form-item-block {
+		padding: 0 24rpx;
+		background-color: #ffffff;
+	}
+
+	.form-normal-wrap {
+		padding: 20rpx 0 0;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		padding-right: 15rpx;
+	}
+
+	.form-label-box {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: 200rpx;
+	}
+
+	.form-label-text {
+		font-size: 32rpx;
+		color: #101010;
+		font-weight: bold;
+		line-height: 60rpx;
+	}
+
+	.form-label-required {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #ff0000;
+	}
+
+	.form-radio-box {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+		padding: 0 16rpx;
+		position: relative;
+	}
+	
+	.form-radio-item {
+		min-width: 168rpx;
+		height: 60rpx;
+		padding: 0 15rpx;
+		background-color: #f8f8f8;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4rpx;
+		margin-right: 24rpx;
+		transition-property: color, background-color;
+		transition-duration: 0.1s;
+		margin-bottom: 20rpx;
+	}
+	
+	.form-radio-check.change-bg {
+		border: 4px solid #ffdf7f;
+	}
+
+	.form-radio-check {
+		background-color: #11479b;
+	}
+
+	.form-radio-check>.form-radio-text {
+		color: #ffffff !important;
+	}
+
+	.form-radio-text {
+		font-size: 28rpx;
+		font-weight: bold;
+		color: #4f4f4f;
+	}
+
+	.form-border-bottom {
+		border-bottom: 1px solid #ededed;
+	}
+</style>

@@ -1,0 +1,32 @@
+{
+	"name": "sz360c_honewell",
+	"id": "sz360c_honewell",
+	"version": "1.0.0",
+	"description": "测试插件流程",
+	"_dp_type":"nativeplugin",
+	"_dp_nativeplugin":{
+		"android": {
+			"plugins": [
+				{
+				  "type": "module",
+				  "name": "sz360c_honewell",
+				  "class": "com.example.sz360c_honewell.HoneRFIDModule"
+				}
+			],
+			"hooksClass": "",
+			"integrateType": "aar",
+			"dependencies": [],
+			"excludeDependencies": [],
+			"compileOptions": {
+				"sourceCompatibility": "1.8",
+				"targetCompatibility": "1.8"
+			},
+			"abis": [],
+			"minSdkVersion": "29",
+			"useAndroidX": false
+			
+			
+		}
+		
+	}
+}
